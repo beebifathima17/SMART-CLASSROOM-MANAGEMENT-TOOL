@@ -83,6 +83,8 @@
       iconColorClass="icon-rose"
       [delta]="classroomService.activeClassroom().isLive ? 'In Progress' : 'Idle'"
       [deltaPositive]="classroomService.activeClassroom().isLive"
+      routerLink="/teacher/live-classroom"
+      title="Click to enter Live Classroom"
     ></app-stat-card>
 
     <app-stat-card
@@ -93,6 +95,8 @@
       iconColorClass="icon-indigo"
       [delta]="classroomService.liveStudents().length > 0 ? (classroomService.liveStudents().length + ' Connected') : 'No Students Yet'"
       [deltaPositive]="classroomService.liveStudents().length > 0"
+      routerLink="/teacher/students"
+      title="Click to view Student Roster"
     ></app-stat-card>
 
     <app-stat-card
@@ -103,6 +107,8 @@
       iconColorClass="icon-purple"
       [delta]="totalPollVotes > 0 ? (totalPollVotes + ' Total') : '0 Submitted'"
       [deltaPositive]="totalPollVotes > 0"
+      routerLink="/teacher/polls"
+      title="Click to view All Polls"
     ></app-stat-card>
 
     <app-stat-card
@@ -113,11 +119,14 @@
       iconColorClass="icon-emerald"
       [delta]="avgParticipationRate > 0 ? (avgParticipationRate + '% Average') : '0%'"
       [deltaPositive]="avgParticipationRate > 0"
+      routerLink="/teacher/analytics"
+      title="Click to view Detailed Analytics"
     ></app-stat-card>
   </div>
 
   <!-- Active Classroom Banner Card -->
   <div class="active-class-card" [class.card-offline]="!classroomService.activeClassroom().isLive">
+    <div class="active-class-ambient"></div>
     <div class="active-class-left">
       <div class="live-pulse-badge" [class.badge-offline]="!classroomService.activeClassroom().isLive">
         <span class="live-dot-pulse" *ngIf="classroomService.activeClassroom().isLive"></span>
@@ -133,10 +142,17 @@
           <app-icon name="users" [size]="15"></app-icon>
           <span><strong>{{ classroomService.liveStudents().length }}</strong> Connected Students</span>
         </div>
-        <div class="meta-tag room-code-tag">
+        <button
+          type="button"
+          class="meta-tag room-code-tag interactive-pin-btn"
+          (click)="copyPin(classroomService.activeClassroom().roomCode)"
+          [title]="'Click to copy PIN ' + classroomService.activeClassroom().roomCode"
+        >
           <span>PIN:</span>
           <strong>{{ classroomService.activeClassroom().roomCode }}</strong>
-        </div>
+          <app-icon [name]="copiedPin ? 'check' : 'copy'" [size]="14" [customClass]="copiedPin ? 'text-emerald' : 'text-indigo'"></app-icon>
+          <span class="pin-copy-tooltip" *ngIf="copiedPin">Copied!</span>
+        </button>
         <div class="meta-tag" *ngIf="classroomService.activeClassroom().isLive">
           <app-icon name="clock" [size]="15"></app-icon>
           <span>Started at {{ classroomService.activeClassroom().startedAt || '10:00 AM' }}</span>

@@ -41,12 +41,17 @@ import { IconComponent } from '../icon/icon.component';
       border-radius: var(--radius-2xl);
       padding: 1.35rem 1.5rem;
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      cursor: pointer;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
       overflow: hidden;
+    }
+
+    .stat-card-3d:active {
+      transform: translateY(1px) scale(0.99);
     }
 
     .stat-card-3d::before {

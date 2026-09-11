@@ -35,6 +35,20 @@ export class TeacherDashboardComponent implements OnInit {
   private toastService = inject(ToastService);
   private router = inject(Router);
   protected Math = Math;
+  copiedPin = false;
+
+  copyPin(pin: string): void {
+    if (!pin) return;
+    navigator.clipboard.writeText(pin).then(() => {
+      this.copiedPin = true;
+      this.toastService.success(`Classroom PIN ${pin} copied to clipboard!`);
+      setTimeout(() => {
+        this.copiedPin = false;
+      }, 2000);
+    }).catch(() => {
+      this.toastService.info(`Room PIN: ${pin}`);
+    });
+  }
 
   get totalPollVotes(): number {
     return this.pollService.polls().reduce((sum, p) => sum + (p.totalResponses || 0), 0);
