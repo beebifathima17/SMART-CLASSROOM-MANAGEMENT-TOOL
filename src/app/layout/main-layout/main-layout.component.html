@@ -1,6 +1,13 @@
 <app-toast-container></app-toast-container>
 
 <div class="app-layout" [class.sidebar-collapsed]="isSidebarCollapsed()">
+  <!-- Ambient 3D Glow Orbs Background -->
+  <div class="layout-ambient-bg" aria-hidden="true">
+    <div class="ambient-orb orb-indigo"></div>
+    <div class="ambient-orb orb-purple"></div>
+    <div class="ambient-orb orb-cyan"></div>
+  </div>
+
   <!-- Mobile Backdrop -->
   @if (isMobileSidebarOpen()) {
     <div class="mobile-backdrop" (click)="closeMobileSidebar()"></div>

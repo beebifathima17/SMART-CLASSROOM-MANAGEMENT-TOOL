@@ -84,7 +84,7 @@
       [delta]="classroomService.activeClassroom().isLive ? 'In Progress' : 'Idle'"
       [deltaPositive]="classroomService.activeClassroom().isLive"
       routerLink="/teacher/live-classroom"
-      title="Click to enter Live Classroom"
+      [attr.title]="'Click to enter Live Classroom'"
     ></app-stat-card>
 
     <app-stat-card
@@ -96,7 +96,7 @@
       [delta]="classroomService.liveStudents().length > 0 ? (classroomService.liveStudents().length + ' Connected') : 'No Students Yet'"
       [deltaPositive]="classroomService.liveStudents().length > 0"
       routerLink="/teacher/students"
-      title="Click to view Student Roster"
+      [attr.title]="'Click to view Student Roster'"
     ></app-stat-card>
 
     <app-stat-card
@@ -108,7 +108,7 @@
       [delta]="totalPollVotes > 0 ? (totalPollVotes + ' Total') : '0 Submitted'"
       [deltaPositive]="totalPollVotes > 0"
       routerLink="/teacher/polls"
-      title="Click to view All Polls"
+      [attr.title]="'Click to view All Polls'"
     ></app-stat-card>
 
     <app-stat-card
@@ -120,7 +120,7 @@
       [delta]="avgParticipationRate > 0 ? (avgParticipationRate + '% Average') : '0%'"
       [deltaPositive]="avgParticipationRate > 0"
       routerLink="/teacher/analytics"
-      title="Click to view Detailed Analytics"
+      [attr.title]="'Click to view Detailed Analytics'"
     ></app-stat-card>
   </div>
 

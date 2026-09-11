@@ -36,11 +36,13 @@ import { IconComponent } from '../icon/icon.component';
   `,
   styles: [`
     .stat-card-3d {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
       border-radius: var(--radius-2xl);
       padding: 1.35rem 1.5rem;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 1);
       cursor: pointer;
       display: flex;
       flex-direction: column;
@@ -48,6 +50,12 @@ import { IconComponent } from '../icon/icon.component';
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
       overflow: hidden;
+    }
+
+    [data-theme="dark"] .stat-card-3d {
+      background: rgba(17, 24, 39, 0.85);
+      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
     .stat-card-3d:active {
