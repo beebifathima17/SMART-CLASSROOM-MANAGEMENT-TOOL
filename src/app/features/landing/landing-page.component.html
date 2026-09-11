@@ -21,7 +21,6 @@
       <nav class="landing-nav-links hide-mobile">
         <a href="#features" class="nav-link">Features</a>
         <a href="#how-it-works" class="nav-link">How It Works</a>
-        <a href="#interactive-preview" class="nav-link">Live Preview</a>
         <a href="#about" class="nav-link">About</a>
       </nav>
 
@@ -32,10 +31,10 @@
     </div>
   </header>
 
-  <!-- Hero Section with Colorful 3D Experience -->
+  <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-container">
-      <!-- 3D Floating Pill -->
+      <!-- 3D Pill -->
       <div class="hero-badge-3d">
         <span class="badge-dot-pulse"></span>
         <span class="badge-text">✨ Next-Gen 3D Real-Time Classroom Suite</span>
@@ -48,7 +47,7 @@
       </h1>
 
       <p class="hero-subheadline">
-        Supercharge lectures with real-time 3D polls, interactive gamified quizzes, live mood pulses, and instant participation analytics.
+        Create live polls, run quick quizzes, collect instant student feedback, and understand classroom participation in real time.
       </p>
 
       <!-- 3D CTA Buttons -->
@@ -63,160 +62,6 @@
           <span>Join with Room PIN</span>
         </a>
       </div>
-
-      <!-- 3D Floating Elements around Hero Scene -->
-      <div class="hero-floating-elements hide-mobile">
-        <div class="float-card float-left-1">
-          <span class="float-emoji">🚀</span>
-          <div>
-            <strong>1-Sec Sync</strong>
-            <small>Zero-Latency Polling</small>
-          </div>
-        </div>
-
-        <div class="float-card float-right-1">
-          <span class="float-emoji">🏆</span>
-          <div>
-            <strong>Leaderboards</strong>
-            <small>Live XP & Badges</small>
-          </div>
-        </div>
-
-        <div class="float-card float-left-2">
-          <span class="float-emoji">🔥</span>
-          <div>
-            <strong>98.4% Turnout</strong>
-            <small>Active Participation</small>
-          </div>
-        </div>
-
-        <div class="float-card float-right-2">
-          <span class="float-emoji">💡</span>
-          <div>
-            <strong>Instant Pulse</strong>
-            <small>Live Lecture Clarity</small>
-          </div>
-        </div>
-      </div>
-
-      <!-- Colorful 3D Stats Glass Banner -->
-      <div class="hero-stats-banner-3d">
-        <div class="stat-pill-3d">
-          <span class="stat-pill-num stat-gradient-emerald">98.4%</span>
-          <span class="stat-pill-label">Average Turnout Rate</span>
-        </div>
-        <div class="stat-divider-3d"></div>
-        <div class="stat-pill-3d">
-          <span class="stat-pill-num stat-gradient-cyan">&lt; 1 sec</span>
-          <span class="stat-pill-label">Live Sync Latency</span>
-        </div>
-        <div class="stat-divider-3d"></div>
-        <div class="stat-pill-3d">
-          <span class="stat-pill-num stat-gradient-purple">1,200+</span>
-          <span class="stat-pill-label">Active Classroom Rooms</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Interactive Live 3D Simulation Preview Section -->
-  <section id="interactive-preview" class="preview-section">
-    <div class="container">
-      <div class="section-header text-center">
-        <div class="section-badge-3d">LIVE INTERACTION</div>
-        <h2 class="section-title">Experience the 3D Polling Engine</h2>
-        <p class="section-subtitle">Click below to simulate how students and teachers interact synchronously in real-time.</p>
-      </div>
-
-      <div class="preview-grid-3d">
-        <!-- Student 3D Mockup -->
-        <div class="mockup-card-3d student-mockup-3d">
-          <div class="card-glow-edge"></div>
-          <div class="mockup-header-3d">
-            <span class="mockup-badge-3d">STUDENT PERSPECTIVE • PIN: WT7K92</span>
-            <span class="live-tag-3d"><span class="pulse-dot-cyan"></span> Active Live</span>
-          </div>
-
-          <div class="mockup-body-3d">
-            <div class="question-box-3d">
-              <span class="q-label-3d">Question #1 • Single Choice</span>
-              <h3 class="q-text-3d">Which topic needs the most review in today's Web Technologies lecture?</h3>
-            </div>
-
-            <div class="options-group-3d">
-              @for (entry of demoVotes | keyvalue; track entry.key) {
-                <button
-                  type="button"
-                  class="option-vote-btn-3d"
-                  [class.option-selected-3d]="selectedDemoOption === entry.key"
-                  (click)="voteDemo(entry.key)"
-                >
-                  <div class="opt-left-3d">
-                    <span class="opt-radio-3d"></span>
-                    <span class="opt-text-3d">{{ entry.key }}</span>
-                  </div>
-                  @if (hasVoted) {
-                    <span class="opt-percent-3d">{{ getPercentage(entry.value) }}%</span>
-                  }
-                </button>
-              }
-            </div>
-
-            @if (hasVoted) {
-              <div class="vote-confirmation-3d">
-                <app-icon name="check-circle-2" [size]="18" customClass="text-emerald"></app-icon>
-                <span>Vote registered! Updated on instructor screen in &lt;100ms.</span>
-              </div>
-            } @else {
-              <p class="vote-instruction-3d">👆 Click any answer above to test live 3D voting!</p>
-            }
-          </div>
-        </div>
-
-        <!-- Teacher 3D Live Analytics Screen -->
-        <div class="mockup-card-3d teacher-mockup-3d">
-          <div class="card-glow-edge"></div>
-          <div class="mockup-header-3d">
-            <span class="mockup-badge-3d">PROFESSOR REAL-TIME 3D METRICS</span>
-            <span class="live-tag-3d bg-purple-tag">Total Votes: {{ getTotalVotes() }}</span>
-          </div>
-
-          <div class="mockup-body-3d">
-            <div class="teacher-stats-3d">
-              <div class="mini-stat-3d">
-                <span class="mini-label-3d">Course</span>
-                <span class="mini-val-3d text-cyan">WT301</span>
-              </div>
-              <div class="mini-stat-3d">
-                <span class="mini-label-3d">Connected</span>
-                <span class="mini-val-3d text-emerald">48 Students</span>
-              </div>
-              <div class="mini-stat-3d">
-                <span class="mini-label-3d">Turnout</span>
-                <span class="mini-val-3d text-purple">96%</span>
-              </div>
-            </div>
-
-            <div class="live-distribution-bars-3d">
-              @for (entry of demoVotes | keyvalue; track entry.key) {
-                <div class="dist-row-3d">
-                  <div class="dist-header-3d">
-                    <span class="dist-topic-3d">{{ entry.key }}</span>
-                    <span class="dist-count-3d">{{ entry.value }} votes ({{ getPercentage(entry.value) }}%)</span>
-                  </div>
-                  <div class="dist-bar-track-3d">
-                    <div
-                      class="dist-bar-fill-3d"
-                      [style.width.%]="getPercentage(entry.value)"
-                      [ngClass]="selectedDemoOption === entry.key ? 'fill-active-3d' : 'fill-standard-3d'"
-                    ></div>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -224,8 +69,8 @@
   <section id="features" class="features-section">
     <div class="container">
       <div class="section-header text-center">
-        <div class="section-badge-3d">POWERFUL FEATURES</div>
-        <h2 class="section-title">Engineered for Maximum Engagement</h2>
+        <div class="section-badge-3d">CORE CAPABILITIES</div>
+        <h2 class="section-title">Engineered for Active Participation</h2>
         <p class="section-subtitle">Everything educators and students need for collaborative, frictionless learning.</p>
       </div>
 
@@ -234,9 +79,9 @@
           <div class="feature-icon-3d icon-3d-indigo">
             <app-icon name="poll" [size]="28"></app-icon>
           </div>
-          <h3 class="feature-title-3d">Instant 3D Polls</h3>
+          <h3 class="feature-title-3d">Live Polling</h3>
           <p class="feature-desc-3d">
-            Launch multi-choice, yes/no, rating pulses, and word clouds with animated real-time bar graphs and timer controls.
+            Launch multi-choice, yes/no, and rating pulses with instantaneous vote aggregation and live bar charts.
           </p>
           <div class="feature-chip">Real-Time Aggregation</div>
         </div>
@@ -245,9 +90,9 @@
           <div class="feature-icon-3d icon-3d-purple">
             <app-icon name="quiz" [size]="28"></app-icon>
           </div>
-          <h3 class="feature-title-3d">Gamified Quizzes</h3>
+          <h3 class="feature-title-3d">Quick Quizzes</h3>
           <p class="feature-desc-3d">
-            Timed multi-question assessments with automatic instant grading, live XP leaderboards, and breakdown analytics.
+            Build timed multi-question assessments with automatic grading, score dashboards, and student streak tracking.
           </p>
           <div class="feature-chip">Auto-Graded Reviews</div>
         </div>
@@ -256,9 +101,9 @@
           <div class="feature-icon-3d icon-3d-emerald">
             <app-icon name="radio" [size]="28"></app-icon>
           </div>
-          <h3 class="feature-title-3d">Live Room Management</h3>
+          <h3 class="feature-title-3d">Classroom Management</h3>
           <p class="feature-desc-3d">
-            6-character PIN access, student waiting room approval, live hand raises, and instant active roster tracking.
+            Unique 6-character room PINs, student admission approval, live active rosters, and instant session controls.
           </p>
           <div class="feature-chip">Secure Student Admission</div>
         </div>
@@ -267,9 +112,9 @@
           <div class="feature-icon-3d icon-3d-amber">
             <app-icon name="bar-chart-3" [size]="28"></app-icon>
           </div>
-          <h3 class="feature-title-3d">Deep Analytics</h3>
+          <h3 class="feature-title-3d">Participation Analytics</h3>
           <p class="feature-desc-3d">
-            Visualize participation curves, diagnose difficult concepts, track student streaks, and export lecture reports.
+            Visualize student attendance, turnout percentages, and engagement metrics calculated from real classroom activity.
           </p>
           <div class="feature-chip">Turnout Insights</div>
         </div>
@@ -281,7 +126,7 @@
   <section id="how-it-works" class="workflow-section">
     <div class="container">
       <div class="section-header text-center">
-        <div class="section-badge-3d">5 EASY STEPS</div>
+        <div class="section-badge-3d">5 SIMPLE STEPS</div>
         <h2 class="section-title">How SmartClass Works</h2>
         <p class="section-subtitle">From classroom creation to real-time insights in under 60 seconds.</p>
       </div>
@@ -308,7 +153,7 @@
         <div class="step-card-3d">
           <div class="step-num-3d">4</div>
           <h4 class="step-title-3d">Instant Response</h4>
-          <p class="step-desc-3d">Students vote and see their choices reflected in synchronized 3D charts.</p>
+          <p class="step-desc-3d">Students submit responses and see their choices synchronized in real time.</p>
         </div>
 
         <div class="step-card-3d">
@@ -325,8 +170,8 @@
     <div class="container">
       <div class="cta-box-3d">
         <div class="cta-glow-mesh"></div>
-        <h2 class="cta-title-3d">Ready to Transform Your Classroom Today?</h2>
-        <p class="cta-subtitle-3d">Join thousands of educators and students experiencing real-time interactive lectures.</p>
+        <h2 class="cta-title-3d">Ready to Elevate Your Classroom?</h2>
+        <p class="cta-subtitle-3d">Join educators and students experiencing real-time interactive lectures.</p>
         <div class="cta-buttons-3d">
           <a routerLink="/register" class="btn btn-3d-primary btn-xl">
             Create Free Account
@@ -351,7 +196,7 @@
             <span class="footer-brand-name">SmartClass</span>
           </div>
           <p class="footer-text">
-            An advanced real-time classroom participation & 3D engagement suite built for modern higher-education and lecture halls.
+            An advanced real-time classroom participation and engagement platform built for modern educational institutions.
           </p>
         </div>
 
@@ -383,7 +228,7 @@
       </div>
 
       <div class="footer-bottom">
-        <p>© 2026 SmartClass 3D. Academic Web Technologies Platform.</p>
+        <p>© 2026 SmartClass. Academic Web Technologies Platform.</p>
         <p>Crafted for Seamless Classroom Interaction</p>
       </div>
     </div>
