@@ -4,13 +4,14 @@ import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-stat-card',
+  standalone: true,
   imports: [CommonModule, IconComponent],
   template: `
-    <div class="stat-card">
+    <div class="stat-card-3d" [ngClass]="'theme-' + (iconColorClass || 'indigo')">
       <div class="stat-header">
         <span class="stat-title">{{ title }}</span>
-        <div class="stat-icon-wrapper" [ngClass]="iconColorClass">
-          <app-icon [name]="icon" [size]="20" [strokeWidth]="2.2"></app-icon>
+        <div class="stat-icon-pod" [ngClass]="iconColorClass">
+          <app-icon [name]="icon" [size]="20" [strokeWidth]="2.3"></app-icon>
         </div>
       </div>
       <div class="stat-body">
@@ -34,97 +35,160 @@ import { IconComponent } from '../icon/icon.component';
     </div>
   `,
   styles: [`
-    .stat-card {
-      background-color: var(--bg-card);
+    .stat-card-3d {
+      background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-xl);
-      padding: 1.25rem 1.5rem;
-      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-2xl);
+      padding: 1.35rem 1.5rem;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: all var(--transition-normal);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
     }
 
-    .stat-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
-      border-color: var(--primary-200);
+    .stat-card-3d::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      opacity: 0;
+      transition: opacity 0.25s;
     }
+
+    .stat-card-3d:hover {
+      box-shadow: 0 16px 32px -6px rgba(15, 23, 42, 0.12), 0 0 20px rgba(99, 102, 241, 0.12);
+      transform: translateY(-4px) scale(1.01);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .stat-card-3d:hover::before {
+      opacity: 1;
+    }
+
+    .theme-icon-indigo:hover::before { background: linear-gradient(90deg, #6366f1, #818cf8); }
+    .theme-icon-emerald:hover::before { background: linear-gradient(90deg, #10b981, #34d399); }
+    .theme-icon-purple:hover::before { background: linear-gradient(90deg, #a855f7, #c084fc); }
+    .theme-icon-amber:hover::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .theme-icon-rose:hover::before { background: linear-gradient(90deg, #f43f5e, #fb7185); }
 
     .stat-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.875rem;
     }
 
     .stat-title {
-      font-size: 0.8125rem;
-      font-weight: 600;
+      font-size: 0.75rem;
+      font-weight: 700;
       color: var(--slate-500);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
     }
 
-    .stat-icon-wrapper {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-lg);
+    .stat-icon-pod {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      transition: transform 0.25s;
     }
 
-    .icon-indigo { background-color: var(--primary-50); color: var(--primary-600); }
-    .icon-emerald { background-color: #ecfdf5; color: var(--accent-emerald); }
-    .icon-purple { background-color: #f5f3ff; color: var(--accent-purple); }
-    .icon-amber { background-color: #fffbeb; color: var(--accent-amber); }
-    .icon-rose { background-color: #fff1f2; color: var(--accent-rose); }
+    .stat-card-3d:hover .stat-icon-pod {
+      transform: scale(1.08) rotate(3deg);
+    }
+
+    .icon-indigo {
+      background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      color: #4f46e5;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+
+    .icon-emerald {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      color: #059669;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .icon-purple {
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      color: #7c3aed;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+    }
+
+    .icon-amber {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      color: #d97706;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    }
+
+    .icon-rose {
+      background: linear-gradient(135deg, #fff1f2 0%, #fee2e2 100%);
+      color: #e11d48;
+      box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
+    }
 
     .stat-value {
-      font-size: 1.875rem;
+      font-size: 2rem;
       font-weight: 800;
       color: var(--slate-900);
-      letter-spacing: -0.02em;
-      line-height: 1.2;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+    }
+
+    [data-theme="dark"] .stat-value {
+      color: #ffffff;
     }
 
     .stat-footer {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      margin-top: 0.375rem;
+      margin-top: 0.5rem;
       font-size: 0.8125rem;
+      flex-wrap: wrap;
     }
 
     .stat-delta {
-      font-weight: 600;
-      padding: 0.125rem 0.375rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
       border-radius: var(--radius-sm);
+      font-size: 0.75rem;
     }
 
     .delta-up {
       background-color: #ecfdf5;
-      color: var(--accent-emerald);
+      color: #059669;
     }
 
     .delta-down {
       background-color: #fff1f2;
-      color: var(--accent-rose);
+      color: #e11d48;
     }
 
     .stat-subtext {
       color: var(--slate-500);
+      font-size: 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   `]
 })
 export class StatCardComponent {
-  @Input({ required: true }) title!: string;
-  @Input({ required: true }) value!: string | number;
-  @Input() icon: string = 'bar-chart-3';
+  @Input() title: string = '';
+  @Input() value: string | number = '';
+  @Input() subtext?: string;
+  @Input() icon: string = 'activity';
   @Input() iconColorClass: string = 'icon-indigo';
   @Input() delta?: string;
   @Input() deltaPositive: boolean = true;
-  @Input() subtext?: string;
 }
