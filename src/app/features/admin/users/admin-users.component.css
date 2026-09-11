@@ -1,0 +1,91 @@
+.admin-users-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--slate-900);
+  letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  margin-top: 0.25rem;
+}
+
+.search-filter-card {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--slate-50);
+  border: 1px solid var(--border-color);
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-lg);
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.8125rem;
+  width: 100%;
+}
+
+.role-filter-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--slate-600);
+}
+
+.role-select {
+  width: 180px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.user-row-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name-txt {
+  font-weight: 700;
+  color: var(--slate-900);
+}
+
+.user-email-txt {
+  font-size: 0.75rem;
+  color: var(--slate-400);
+}
+
+.actions-group {
+  display: flex;
+  gap: 0.5rem;
+}

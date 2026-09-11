@@ -1,0 +1,156 @@
+<div class="live-poll-wrapper" *ngIf="currentPoll() as poll">
+  <!-- Top Bar: Room Status & Live Badge -->
+  <div class="live-topbar">
+    <div class="topbar-left">
+      <div class="live-pill-glow">
+        <span class="pulse-circle"></span>
+        <span>LIVE CLASSROOM POLL</span>
+      </div>
+      <h1 class="poll-screen-title">{{ poll.title }}</h1>
+      <span class="room-indicator">Room: <strong>{{ classroomService.activeClassroom().roomCode }}</strong> • Web Technologies</span>
+    </div>
+
+    <div class="topbar-right">
+      <!-- Live Countdown Timer -->
+      <div class="timer-box" [class.timer-warning]="(poll.secondsRemaining || 0) < 20 && poll.status === 'active'">
+        <app-icon name="clock" [size]="18"></app-icon>
+        <div class="timer-digits">
+          <span class="timer-label">Time Remaining</span>
+          <span class="timer-val">{{ formatTime(poll.secondsRemaining) }}</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons-row">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          (click)="togglePause()"
+          [disabled]="poll.status === 'ended'"
+        >
+          <app-icon [name]="poll.status === 'active' ? 'pause' : 'play'" [size]="15"></app-icon>
+          {{ poll.status === 'active' ? 'Pause Poll' : 'Resume Poll' }}
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-sm"
+          [ngClass]="poll.showResultsToStudents ? 'btn-success' : 'btn-outline'"
+          (click)="toggleShare()"
+        >
+          <app-icon name="share-2" [size]="15"></app-icon>
+          {{ poll.showResultsToStudents ? 'Results Shared' : 'Share Results' }}
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-danger btn-sm"
+          (click)="endPoll()"
+          [disabled]="poll.status === 'ended'"
+        >
+          <app-icon name="x" [size]="15"></app-icon>
+          End Poll
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Metrics Strip -->
+  <div class="metrics-strip">
+    <div class="metric-card">
+      <span class="m-label">TOTAL STUDENTS</span>
+      <span class="m-val">{{ classroomService.activeClassroom().activeStudentsCount }}</span>
+      <span class="m-sub">Connected in Room</span>
+    </div>
+
+    <div class="metric-card">
+      <span class="m-label">RESPONSES RECEIVED</span>
+      <span class="m-val text-indigo">{{ poll.totalResponses }}</span>
+      <span class="m-sub">Live Votes In</span>
+    </div>
+
+    <div class="metric-card">
+      <span class="m-label">PARTICIPATION RATE</span>
+      <span class="m-val text-emerald">
+        {{ Math.round((poll.totalResponses / classroomService.activeClassroom().activeStudentsCount) * 100) }}%
+      </span>
+      <span class="m-sub">Turnout percentage</span>
+    </div>
+
+    <div class="metric-card">
+      <span class="m-label">STATUS</span>
+      <span class="m-val">
+        <span class="badge" [ngClass]="poll.status === 'active' ? 'badge-live' : 'badge-draft'">
+          {{ poll.status | uppercase }}
+        </span>
+      </span>
+      <span class="m-sub">Real-time sync</span>
+    </div>
+  </div>
+
+  <!-- Main Question & Live Chart Area -->
+  <div class="card question-monitor-card">
+    <div class="question-header">
+      <span class="q-tag">ACTIVE POLL QUESTION</span>
+      <h2 class="active-question-text">{{ poll.question }}</h2>
+    </div>
+
+    <div class="chart-section-wrapper">
+      <div class="chart-controls-bar">
+        <span class="chart-heading">Live Response Distribution</span>
+        <div class="chart-toggle-group">
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.toggle-active]="chartType === 'bar'"
+            (click)="setChartType('bar')"
+          >
+            Bar Chart
+          </button>
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.toggle-active]="chartType === 'doughnut'"
+            (click)="setChartType('doughnut')"
+          >
+            Donut Chart
+          </button>
+        </div>
+      </div>
+
+      <!-- Render Selected Chart -->
+      <div class="chart-display-box">
+        @if (chartType === 'bar') {
+          <app-chart
+            type="bar"
+            [data]="barChartData"
+            [options]="barChartOptions"
+            height="320px"
+          ></app-chart>
+        } @else {
+          <app-chart
+            type="doughnut"
+            [data]="donutChartData"
+            [options]="donutChartOptions"
+            height="320px"
+          ></app-chart>
+        }
+      </div>
+
+      <!-- Detailed Breakdown Table / Cards -->
+      <div class="options-progress-grid">
+        @for (opt of poll.options; track opt.id) {
+          <div class="option-breakdown-card">
+            <div class="opt-breakdown-top">
+              <span class="opt-title">{{ opt.text }}</span>
+              <span class="opt-score">{{ opt.votes }} votes ({{ opt.percentage }}%)</span>
+            </div>
+            <div class="opt-progress-track">
+              <div class="opt-progress-fill" [style.width.%]="opt.percentage"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

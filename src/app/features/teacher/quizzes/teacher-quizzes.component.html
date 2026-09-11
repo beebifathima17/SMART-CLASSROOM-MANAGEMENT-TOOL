@@ -1,0 +1,218 @@
+<div class="quizzes-page-container">
+  <!-- Header Bar -->
+  <div class="quizzes-page-header">
+    <div>
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl font-bold">Classroom Assessments & Quizzes</h1>
+        <span class="badge badge-indigo">{{ quizService.quizzes().length }} Total</span>
+      </div>
+      <p class="text-secondary text-sm mt-1">
+        Design timed tests, conceptual challenges, and automated grading for {{ classroomService.activeClassroom().name }}.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button (click)="goToCreateQuiz()" class="btn btn-primary shadow-md">
+        <app-icon name="plus" [size]="16"></app-icon>
+        <span>Create New Quiz</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter & Search Controls -->
+  <div class="card p-4 mb-6 shadow-sm">
+    <div class="filter-controls-row">
+      <div class="filter-pills-wrap">
+        <button
+          type="button"
+          class="filter-pill"
+          [class.pill-active]="selectedFilter === 'all'"
+          (click)="selectedFilter = 'all'"
+        >
+          All ({{ quizService.quizzes().length }})
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.pill-active]="selectedFilter === 'published'"
+          (click)="selectedFilter = 'published'"
+        >
+          Live Published
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.pill-active]="selectedFilter === 'draft'"
+          (click)="selectedFilter = 'draft'"
+        >
+          Drafts
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.pill-active]="selectedFilter === 'closed'"
+          (click)="selectedFilter = 'closed'"
+        >
+          Closed
+        </button>
+      </div>
+
+      <div class="search-input-box">
+        <app-icon name="search" [size]="16" customClass="text-slate-400"></app-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search quizzes by title or subject..."
+          class="quiz-search-input"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Quizzes Grid -->
+  @if (filteredQuizzes().length > 0) {
+    <div class="quizzes-cards-grid">
+      @for (quiz of filteredQuizzes(); track quiz.id) {
+        <div class="card quiz-item-card" [class.card-is-active]="quiz.status === 'published'">
+          <div class="quiz-card-top">
+            <div class="quiz-status-pill">
+              <span class="badge" [ngClass]="{
+                'badge-live': quiz.status === 'published',
+                'badge-draft': quiz.status === 'draft',
+                'badge-indigo': quiz.status === 'closed'
+              }">
+                {{ quiz.status | uppercase }}
+              </span>
+              <span class="text-xs text-muted font-semibold">{{ quiz.subject }}</span>
+            </div>
+
+            <button
+              type="button"
+              class="btn-delete-quiz"
+              (click)="deleteQuiz(quiz, $event)"
+              title="Delete this quiz"
+            >
+              <app-icon name="trash-2" [size]="16" customClass="text-rose"></app-icon>
+            </button>
+          </div>
+
+          <div class="quiz-card-main">
+            <h3 class="quiz-card-title">{{ quiz.title }}</h3>
+            <p class="quiz-card-desc">{{ quiz.description || 'Comprehensive conceptual challenge for students.' }}</p>
+
+            <div class="quiz-specs-grid">
+              <div class="spec-item">
+                <span class="spec-label">Questions</span>
+                <strong class="spec-val">{{ quiz.totalQuestions || quiz.questions.length }} Qs</strong>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Time Limit</span>
+                <strong class="spec-val">{{ quiz.durationMinutes }} mins</strong>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Total Marks</span>
+                <strong class="spec-val">{{ quiz.totalMarks }} pts</strong>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Submissions</span>
+                <strong class="spec-val text-indigo">{{ quiz.completedCount || 0 }} done</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="quiz-card-footer">
+            <div class="quiz-avg-score" *ngIf="(quiz.completedCount || 0) > 0; else noSubmissions">
+              <span class="text-xs text-muted">Class Avg:</span>
+              <strong class="text-emerald font-bold">{{ quiz.averageScore || 0 }}%</strong>
+            </div>
+            <ng-template #noSubmissions>
+              <span class="text-xs text-slate-400">0 Submissions yet</span>
+            </ng-template>
+
+            <div class="quiz-card-actions">
+              <button type="button" class="btn btn-secondary btn-sm" (click)="openPreview(quiz)">
+                <app-icon name="eye" [size]="14"></app-icon>
+                Preview
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-sm"
+                [ngClass]="quiz.status === 'published' ? 'btn-outline' : 'btn-primary'"
+                (click)="toggleQuizStatus(quiz)"
+              >
+                <app-icon [name]="quiz.status === 'published' ? 'check' : 'radio'" [size]="14"></app-icon>
+                <span>{{ quiz.status === 'published' ? 'Close Quiz' : 'Publish to Students' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Empty State -->
+    <div class="card p-12 text-center empty-quizzes-card">
+      <div class="empty-icon-circle">
+        <app-icon name="quiz" [size]="40" customClass="text-indigo"></app-icon>
+      </div>
+      <h3 class="text-xl font-bold mt-4">No Quizzes Available</h3>
+      <p class="text-secondary text-sm mt-1 max-w-md mx-auto">
+        {{ searchTerm ? 'No assessments match your search. Try adjusting the search query.' : 'You have not created any quizzes for this classroom yet. Create your first automated grading quiz!' }}
+      </p>
+      <div class="mt-6 flex justify-center gap-3">
+        <button *ngIf="searchTerm" type="button" class="btn btn-secondary" (click)="searchTerm = ''; selectedFilter = 'all'">
+          Clear Filters
+        </button>
+        <button type="button" class="btn btn-primary" (click)="goToCreateQuiz()">
+          <app-icon name="plus" [size]="16"></app-icon>
+          Create First Quiz
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Quiz Preview Modal -->
+<app-modal
+  [isOpen]="isPreviewModalOpen"
+  [title]="selectedQuizForPreview?.title || 'Quiz Preview'"
+  [subtitle]="(selectedQuizForPreview?.questions?.length || 0) + ' Questions • ' + (selectedQuizForPreview?.durationMinutes || 0) + ' Minutes'"
+  maxWidth="640px"
+  (closeEvent)="closePreview()"
+>
+  <div modal-body *ngIf="selectedQuizForPreview as q">
+    <div class="quiz-preview-list">
+      @for (quest of q.questions; track quest.id; let i = $index) {
+        <div class="preview-quest-box">
+          <div class="quest-num-header">
+            <span class="font-bold text-indigo">Question {{ i + 1 }}</span>
+            <span class="text-xs text-muted">{{ quest.marks }} Marks</span>
+          </div>
+          <p class="font-medium text-sm mt-1 mb-3">{{ quest.questionText }}</p>
+
+          <div class="options-list">
+            @for (opt of quest.options; track opt.id) {
+              <div
+                class="option-item-preview"
+                [class.correct-option]="opt.id === quest.correctOptionId"
+              >
+                <span class="option-dot"></span>
+                <span>{{ opt.text }}</span>
+                <span *ngIf="opt.id === quest.correctOptionId" class="correct-badge">✓ Correct</span>
+              </div>
+            }
+          </div>
+
+          <div *ngIf="quest.explanation" class="explanation-box mt-3">
+            <strong class="text-xs text-secondary">Explanation:</strong>
+            <p class="text-xs text-muted mt-0.5">{{ quest.explanation }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-secondary btn-sm" (click)="closePreview()">Close</button>
+  </div>
+</app-modal>

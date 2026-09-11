@@ -1,0 +1,84 @@
+<div class="admin-dashboard-container">
+  <!-- Top Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Institution System Administration</h1>
+      <p class="page-subtitle">SmartClass Multi-Tenant Platform & User Management</p>
+    </div>
+
+    <div class="header-actions">
+      <a routerLink="/admin/users" class="btn btn-primary btn-sm">
+        <app-icon name="users" [size]="14"></app-icon>
+        Manage Users
+      </a>
+      <a routerLink="/admin/classrooms" class="btn btn-secondary btn-sm">
+        <app-icon name="radio" [size]="14"></app-icon>
+        Classrooms Directory
+      </a>
+    </div>
+  </div>
+
+  <!-- Essential Statistics Cards -->
+  <div class="stats-grid-3">
+    <app-stat-card
+      title="Platform Users"
+      [value]="'Active'"
+      subtext="Teachers & Students"
+      icon="users"
+      iconColorClass="icon-indigo"
+      delta="Online"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Active Classrooms"
+      value="3 Rooms"
+      subtext="Live interactive sessions"
+      icon="radio"
+      iconColorClass="icon-emerald"
+      delta="Live"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="System Status"
+      value="Operational"
+      subtext="Polling & Quiz Engine"
+      icon="check-circle-2"
+      iconColorClass="icon-purple"
+      delta="100% Uptime"
+      [deltaPositive]="true"
+    ></app-stat-card>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Institutional User Growth</h3>
+      </div>
+      <div class="card-body">
+        <app-chart
+          type="line"
+          [data]="userGrowthData"
+          [options]="chartOptions"
+          height="250px"
+        ></app-chart>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Classroom Activity by Department</h3>
+      </div>
+      <div class="card-body">
+        <app-chart
+          type="bar"
+          [data]="classroomActivityData"
+          [options]="chartOptions"
+          height="250px"
+        ></app-chart>
+      </div>
+    </div>
+  </div>
+</div>

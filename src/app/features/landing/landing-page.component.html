@@ -1,0 +1,340 @@
+<div class="landing-page">
+  <!-- Navigation Header -->
+  <header class="landing-header">
+    <div class="landing-nav-container">
+      <div class="landing-brand">
+        <div class="brand-icon">
+          <app-icon name="sparkles" [size]="22" [strokeWidth]="2.5"></app-icon>
+        </div>
+        <span class="brand-title">SmartClass</span>
+      </div>
+
+      <nav class="landing-nav-links hide-mobile">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#interactive-preview" class="nav-link">Live Preview</a>
+        <a href="#about" class="nav-link">About</a>
+      </nav>
+
+      <div class="landing-nav-actions">
+        <a routerLink="/login" class="btn btn-ghost btn-sm">Sign In</a>
+        <a routerLink="/login" class="btn btn-primary btn-sm">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-container">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>Next-Gen Real-Time EdTech Platform</span>
+      </div>
+
+      <h1 class="hero-headline">
+        Make Every Classroom <span class="gradient-text">Interactive</span>
+      </h1>
+
+      <p class="hero-subheadline">
+        Create live polls, run quick quizzes, collect instant feedback, and understand student participation in real time.
+      </p>
+
+      <div class="hero-cta-group">
+        <a routerLink="/login" class="btn btn-primary btn-lg">
+          <app-icon name="sparkles" [size]="18"></app-icon>
+          Get Started as Educator
+        </a>
+        <a routerLink="/student/join" class="btn btn-secondary btn-lg">
+          <app-icon name="radio" [size]="18"></app-icon>
+          Join a Classroom
+        </a>
+      </div>
+
+      <!-- Quick Stats Row -->
+      <div class="hero-stats-banner">
+        <div class="stat-pill">
+          <span class="stat-pill-num">98.4%</span>
+          <span class="stat-pill-label">Average Engagement Rate</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-pill">
+          <span class="stat-pill-num">&lt; 1 sec</span>
+          <span class="stat-pill-label">Live Poll Sync Latency</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-pill">
+          <span class="stat-pill-num">1,200+</span>
+          <span class="stat-pill-label">Active Classroom Rooms</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Live Demo Simulation Section -->
+  <section id="interactive-preview" class="preview-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <h2 class="section-title">Experience the Real-Time Polling Engine</h2>
+        <p class="section-subtitle">Click below to simulate how students and educators interact synchronously.</p>
+      </div>
+
+      <div class="preview-grid">
+        <!-- Student View Mockup -->
+        <div class="mockup-card student-mockup">
+          <div class="mockup-header">
+            <span class="mockup-badge">STUDENT PERSPECTIVE • ROOM WT7K92</span>
+            <span class="live-tag"><span class="pulse-dot"></span> Active Now</span>
+          </div>
+
+          <div class="mockup-body">
+            <div class="question-box">
+              <span class="q-label">Question #1</span>
+              <h3 class="q-text">What is the most difficult topic in today's Web Technologies class?</h3>
+            </div>
+
+            <div class="options-group">
+              @for (entry of demoVotes | keyvalue; track entry.key) {
+                <button
+                  type="button"
+                  class="option-vote-btn"
+                  [class.option-selected]="selectedDemoOption === entry.key"
+                  (click)="voteDemo(entry.key)"
+                >
+                  <div class="opt-left">
+                    <span class="opt-bullet"></span>
+                    <span class="opt-text">{{ entry.key }}</span>
+                  </div>
+                  @if (hasVoted) {
+                    <span class="opt-percent">{{ getPercentage(entry.value) }}%</span>
+                  }
+                </button>
+              }
+            </div>
+
+            @if (hasVoted) {
+              <div class="vote-confirmation">
+                <app-icon name="check-circle-2" [size]="16" customClass="text-emerald"></app-icon>
+                <span>Your response has been synchronized with the instructor dashboard in real-time.</span>
+              </div>
+            } @else {
+              <p class="vote-instruction">👆 Click any option above to cast a live vote!</p>
+            }
+          </div>
+        </div>
+
+        <!-- Teacher Dashboard Live Chart Simulation -->
+        <div class="mockup-card teacher-mockup">
+          <div class="mockup-header">
+            <span class="mockup-badge">PROFESSOR REAL-TIME ANALYTICS</span>
+            <span class="live-tag bg-indigo-tag">Total Responses: {{ getTotalVotes() }}</span>
+          </div>
+
+          <div class="mockup-body">
+            <div class="teacher-stats-mini">
+              <div class="mini-stat">
+                <span class="mini-label">Room</span>
+                <span class="mini-val">WT301</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-label">Connected</span>
+                <span class="mini-val text-emerald">48 Students</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-label">Turnout</span>
+                <span class="mini-val text-indigo">96%</span>
+              </div>
+            </div>
+
+            <div class="live-distribution-bars">
+              @for (entry of demoVotes | keyvalue; track entry.key) {
+                <div class="dist-row">
+                  <div class="dist-header">
+                    <span class="dist-topic">{{ entry.key }}</span>
+                    <span class="dist-count">{{ entry.value }} votes ({{ getPercentage(entry.value) }}%)</span>
+                  </div>
+                  <div class="dist-bar-track">
+                    <div
+                      class="dist-bar-fill"
+                      [style.width.%]="getPercentage(entry.value)"
+                      [ngClass]="selectedDemoOption === entry.key ? 'fill-active' : 'fill-standard'"
+                    ></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Cards Grid -->
+  <section id="features" class="features-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <h2 class="section-title">Built for Modern Educational Workflows</h2>
+        <p class="section-subtitle">Everything teachers and students need for high-impact classroom participation.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon icon-indigo">
+            <app-icon name="poll" [size]="26"></app-icon>
+          </div>
+          <h3 class="feature-title">Live Polls</h3>
+          <p class="feature-desc">
+            Launch multi-choice, yes/no, rating, and open-text pulse checks with instant vote aggregation and countdown timers.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon icon-purple">
+            <app-icon name="quiz" [size]="26"></app-icon>
+          </div>
+          <h3 class="feature-title">Quick Quizzes</h3>
+          <p class="feature-desc">
+            Build timed multi-question assessments with automatic grading, score dashboards, and detailed question-by-question reviews.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon icon-emerald">
+            <app-icon name="radio" [size]="26"></app-icon>
+          </div>
+          <h3 class="feature-title">Instant Feedback</h3>
+          <p class="feature-desc">
+            Track student active states in real time (Active, Answered, Not Responded) to immediately address classroom confusion.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon icon-amber">
+            <app-icon name="bar-chart-3" [size]="26"></app-icon>
+          </div>
+          <h3 class="feature-title">Real-Time Analytics</h3>
+          <p class="feature-desc">
+            Visualize participation trends across lectures, track individual student rosters, and export comprehensive CSV/PDF reports.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="workflow-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <h2 class="section-title">How SmartClass Works</h2>
+        <p class="section-subtitle">A seamless 5-step journey from classroom launch to analytical mastery.</p>
+      </div>
+
+      <div class="workflow-steps">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h4 class="step-title">Create Session</h4>
+          <p class="step-desc">Teacher starts a live lecture session with an auto-generated 6-character room code.</p>
+        </div>
+
+        <div class="step-arrow"><app-icon name="chevron-right" [size]="20"></app-icon></div>
+
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h4 class="step-title">Students Join</h4>
+          <p class="step-desc">Students enter the room code from their laptop or mobile without tedious account barriers.</p>
+        </div>
+
+        <div class="step-arrow"><app-icon name="chevron-right" [size]="20"></app-icon></div>
+
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h4 class="step-title">Launch Activity</h4>
+          <p class="step-desc">Professor triggers an interactive poll, diagnostic checkpoint, or timed quiz.</p>
+        </div>
+
+        <div class="step-arrow"><app-icon name="chevron-right" [size]="20"></app-icon></div>
+
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <h4 class="step-title">Students Respond</h4>
+          <p class="step-desc">Students submit responses instantaneously, receiving immediate feedback and grading.</p>
+        </div>
+
+        <div class="step-arrow"><app-icon name="chevron-right" [size]="20"></app-icon></div>
+
+        <div class="step-card">
+          <div class="step-num">5</div>
+          <h4 class="step-title">Live Analytics</h4>
+          <p class="step-desc">The dashboard updates in real time with participation metrics, graphs, and attendance logs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-box">
+        <h2 class="cta-title">Ready to Elevate Your Classroom Engagement?</h2>
+        <p class="cta-subtitle">Get started today as a Teacher, Student, or Academic Administrator.</p>
+        <div class="cta-buttons">
+          <a routerLink="/register" class="btn btn-primary btn-lg">
+            Create Free Account
+          </a>
+          <a routerLink="/login" class="btn btn-secondary btn-lg">
+            Sign In to Portal
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="about" class="landing-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="brand-link">
+            <div class="brand-icon-sm">
+              <app-icon name="sparkles" [size]="18"></app-icon>
+            </div>
+            <span class="footer-brand-name">SmartClass</span>
+          </div>
+          <p class="footer-text">
+            An interactive classroom participation and engagement system built for modern educational institutions.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h5 class="footer-heading">Features</h5>
+          <ul class="footer-links">
+            <li><a routerLink="/teacher/polls">Live Polling</a></li>
+            <li><a routerLink="/teacher/quizzes">Quiz Builder</a></li>
+            <li><a routerLink="/teacher/live-classroom">Live Roster Feed</a></li>
+            <li><a routerLink="/teacher/analytics">Participation Reports</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5 class="footer-heading">Portals</h5>
+          <ul class="footer-links">
+            <li><a routerLink="/login">Teacher Sign In</a></li>
+            <li><a routerLink="/student/join">Student Join PIN</a></li>
+            <li><a routerLink="/register">Register Account</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5 class="footer-heading">Technology Stack</h5>
+          <p class="footer-text">
+            Angular 18+ • TypeScript • Chart.js • CSS Design System • REST API Architecture Ready.
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 SmartClass. Web Technologies Academic Project.</p>
+        <p>Built with Angular & Modern Frontend Standards</p>
+      </div>
+    </div>
+  </footer>
+</div>

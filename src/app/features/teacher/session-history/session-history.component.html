@@ -1,0 +1,118 @@
+<div class="history-page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Classroom Session History</h1>
+      <p class="page-subtitle">Historical records of lectures, participation turnouts, and conducted assessments</p>
+    </div>
+  </div>
+
+  <!-- Sessions List Table -->
+  <div class="card">
+    <div class="table-container" style="border: none; border-radius: 0;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Subject</th>
+            <th>Date & Time</th>
+            <th>Students</th>
+            <th>Participation</th>
+            <th>Polls</th>
+            <th>Quizzes</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (session of classroomService.sessions(); track session.id) {
+            <tr class="history-row" (click)="openSessionDetail(session)">
+              <td>
+                <div class="session-title-cell">
+                  <span class="session-num">#{{ session.sessionNumber }}</span>
+                  <span class="session-title-text">{{ session.title }}</span>
+                </div>
+              </td>
+              <td>{{ session.subject }}</td>
+              <td>{{ session.date }}</td>
+              <td><strong>{{ session.studentsAttendedCount }}</strong> / {{ session.totalEnrolledCount }}</td>
+              <td>
+                <span class="badge badge-indigo font-bold">{{ session.participationPercentage }}%</span>
+              </td>
+              <td>{{ session.pollsCount }} polls</td>
+              <td>{{ session.quizzesCount }} quizzes</td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="session.status === 'live' ? 'badge-live' : 'badge-active'"
+                >
+                  {{ session.status }}
+                </span>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  (click)="openSessionDetail(session); $event.stopPropagation()"
+                >
+                  <app-icon name="eye" [size]="13"></app-icon>
+                  Breakdown
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Session Breakdown Modal -->
+<app-modal
+  [isOpen]="!!selectedSession"
+  title="Lecture Session Breakdown"
+  [subtitle]="selectedSession ? selectedSession.title + ' • ' + selectedSession.date : ''"
+  maxWidth="580px"
+  (closeEvent)="closeModal()"
+>
+  <div modal-body *ngIf="selectedSession" class="session-breakdown-content">
+    <div class="session-kpis-grid">
+      <div class="kpi-mini-card">
+        <span class="kpi-lbl">ATTENDANCE</span>
+        <span class="kpi-val text-indigo">{{ selectedSession.studentsAttendedCount }} / {{ selectedSession.totalEnrolledCount }}</span>
+      </div>
+      <div class="kpi-mini-card">
+        <span class="kpi-lbl">PARTICIPATION RATE</span>
+        <span class="kpi-val text-emerald">{{ selectedSession.participationPercentage }}%</span>
+      </div>
+      <div class="kpi-mini-card">
+        <span class="kpi-lbl">POLLS CONDUCTED</span>
+        <span class="kpi-val">{{ selectedSession.pollsCount }}</span>
+      </div>
+      <div class="kpi-mini-card">
+        <span class="kpi-lbl">ASSESSMENTS</span>
+        <span class="kpi-val">{{ selectedSession.quizzesCount }}</span>
+      </div>
+    </div>
+
+    <div class="session-summary-box">
+      <h5 class="summary-lbl">Lecture Topics Covered:</h5>
+      <p class="summary-p">{{ selectedSession.summary }}</p>
+    </div>
+
+    <div class="session-logs-box">
+      <h5 class="summary-lbl">Session Highlights:</h5>
+      <ul class="highlights-list">
+        <li>Highest turnout recorded during reactive state management discussion.</li>
+        <li>100% submission rate on pulse poll regarding Signals interop.</li>
+        <li>Average quiz score: 86% across 38 participating students.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-secondary btn-sm" (click)="closeModal()">
+      Close
+    </button>
+  </div>
+</app-modal>

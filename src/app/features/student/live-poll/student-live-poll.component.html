@@ -1,0 +1,214 @@
+<div class="student-poll-container" *ngIf="activePoll() as poll; else noActivePoll">
+  <!-- Top Session Context Bar -->
+  <div class="session-context-bar">
+    <div class="bar-left">
+      <div class="live-pulse-badge">
+        <span class="live-dot-pulse"></span>
+        <span>CONNECTED • ROOM {{ classroomService.activeClassroom().roomCode }}</span>
+      </div>
+      <h2 class="context-title">{{ classroomService.activeClassroom().name }}</h2>
+      <p class="context-teacher">Instructor: <strong>{{ poll.teacherName }}</strong> • {{ poll.subject }}</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="button" class="btn btn-warning btn-sm flex items-center gap-2 shadow-md hover:scale-105 transition-all" (click)="openDoubtModal()">
+        <span class="text-base">✋</span>
+        <span class="font-bold">Raise Hand / Doubt</span>
+      </button>
+
+      @if (poll.status === 'active' && (poll.secondsRemaining || 0) > 0) {
+        <div class="poll-timer-chip">
+          <app-icon name="clock" [size]="15"></app-icon>
+          <span>{{ poll.secondsRemaining }}s Remaining</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Main Poll Interaction Card -->
+  <div class="card poll-active-card">
+    <div class="poll-card-header">
+      <span class="q-badge">{{ poll.title }}</span>
+      <h1 class="main-question-text">{{ poll.question }}</h1>
+      @if (poll.allowMultipleAnswers) {
+        <span class="multi-hint">(You may select more than one answer)</span>
+      }
+    </div>
+
+    <!-- State A: Form (Not Answered Yet) -->
+    @if (!hasAlreadyAnswered) {
+      <div class="poll-form-body">
+        <!-- Multiple Choice (Single or Multiple) -->
+        @if (poll.type === 'multiple_choice' || poll.type === 'yes_no') {
+          <div class="options-choice-stack">
+            @for (opt of poll.options; track opt.id) {
+              @if (poll.allowMultipleAnswers) {
+                <div
+                  class="choice-item"
+                  [class.choice-selected]="selectedMultipleOptionIds.includes(opt.id)"
+                  (click)="toggleMultipleOption(opt.id)"
+                >
+                  <input
+                    type="checkbox"
+                    [checked]="selectedMultipleOptionIds.includes(opt.id)"
+                    class="custom-checkbox"
+                  />
+                  <span class="choice-text">{{ opt.text }}</span>
+                </div>
+              } @else {
+                <div
+                  class="choice-item"
+                  [class.choice-selected]="selectedSingleOptionId === opt.id"
+                  (click)="selectedSingleOptionId = opt.id"
+                >
+                  <div class="custom-radio-circle" [class.radio-filled]="selectedSingleOptionId === opt.id"></div>
+                  <span class="choice-text">{{ opt.text }}</span>
+                </div>
+              }
+            }
+          </div>
+        }
+
+        <!-- 5-Star Rating Poll -->
+        @if (poll.type === 'rating') {
+          <div class="rating-choice-box">
+            <span class="rating-prompt">Tap a star to rate:</span>
+            <div class="stars-picker">
+              @for (star of [1, 2, 3, 4, 5]; track star) {
+                <button
+                  type="button"
+                  class="star-btn"
+                  (click)="setRating(star)"
+                >
+                  <app-icon
+                    name="star"
+                    [size]="36"
+                    [customClass]="star <= ratingValue ? 'star-gold' : 'star-gray'"
+                  ></app-icon>
+                </button>
+              }
+            </div>
+            <span class="rating-label">{{ ratingValue }} of 5 Stars</span>
+          </div>
+        }
+
+        <!-- Open Text Feedback -->
+        @if (poll.type === 'open_text') {
+          <div class="text-choice-box">
+            <textarea
+              [(ngModel)]="textAnswer"
+              rows="4"
+              class="form-control"
+              placeholder="Type your response to the professor..."
+            ></textarea>
+          </div>
+        }
+
+        <div class="poll-action-bar">
+          <button
+            type="button"
+            class="btn btn-primary btn-lg w-full"
+            (click)="submitResponse()"
+          >
+            <app-icon name="check" [size]="18"></app-icon>
+            Submit Answer
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- State B: Submitted State / Live Results Screen -->
+    @if (hasAlreadyAnswered) {
+      <div class="poll-submitted-body">
+        <div class="submitted-banner">
+          <div class="success-icon-wrap">
+            <app-icon name="check-circle-2" [size]="32" customClass="text-emerald"></app-icon>
+          </div>
+          <h3 class="submitted-title">Your response has been recorded.</h3>
+          <p class="submitted-subtitle">Thank you for participating! Results will update in real time below.</p>
+        </div>
+
+        @if (poll.showResultsToStudents) {
+          <div class="live-results-section">
+            <h4 class="results-heading">Classroom Vote Distribution (Live)</h4>
+
+            <div class="results-bars-list">
+              @for (opt of poll.options; track opt.id) {
+                <div class="res-bar-item">
+                  <div class="res-bar-header">
+                    <span class="res-opt-title">{{ opt.text }}</span>
+                    <strong class="res-pct-val">{{ opt.percentage }}% ({{ opt.votes }} votes)</strong>
+                  </div>
+                  <div class="res-bar-track">
+                    <div class="res-bar-fill" [style.width.%]="opt.percentage"></div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="mt-6">
+              <app-chart
+                type="bar"
+                [data]="resultChartData"
+                [options]="resultChartOptions"
+                height="200px"
+              ></app-chart>
+            </div>
+          </div>
+        } @else {
+          <div class="results-hidden-card">
+            <app-icon name="eye-off" [size]="20" customClass="text-slate-400"></app-icon>
+            <span>Live chart results are currently hidden by the instructor.</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<ng-template #noActivePoll>
+  <div class="card p-8 text-center" style="max-width: 600px; margin: 2rem auto;">
+    <app-icon name="poll" [size]="48" customClass="text-slate-300"></app-icon>
+    <h3 class="text-xl font-bold mt-4">No Active Poll Right Now</h3>
+    <p class="text-secondary mt-1">Please wait for your instructor to launch the next polling activity.</p>
+    <div class="mt-6 flex justify-center gap-3">
+      <button type="button" class="btn btn-warning shadow-md" (click)="openDoubtModal()">
+        <span>✋ Raise Hand / Ask Question</span>
+      </button>
+      <a routerLink="/student/dashboard" class="btn btn-outline">Back to Dashboard</a>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Raise Hand / Ask Doubt Modal -->
+<div *ngIf="showDoubtModal" class="modal-backdrop" (click)="closeDoubtModal()">
+  <div class="modal-card" style="max-width: 480px;" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">✋</span>
+        <h3 class="font-bold text-lg">Raise Hand / Ask Doubt</h3>
+      </div>
+      <button type="button" class="btn-close" (click)="closeDoubtModal()">✕</button>
+    </div>
+    <div class="modal-body space-y-4">
+      <p class="text-sm text-secondary">
+        Raising your hand alerts the teacher immediately. You can optionally type your doubt or question below.
+      </p>
+      <div>
+        <label class="block text-xs font-semibold text-secondary uppercase mb-1">Your Question / Doubt (Optional)</label>
+        <textarea
+          [(ngModel)]="doubtQuestion"
+          rows="3"
+          class="form-control"
+          placeholder="e.g. Could you explain the difference between stack and heap memory again?"
+        ></textarea>
+      </div>
+    </div>
+    <div class="modal-footer flex justify-end gap-2 mt-4">
+      <button type="button" class="btn btn-secondary" (click)="closeDoubtModal()">Cancel</button>
+      <button type="button" class="btn btn-warning" (click)="submitDoubt()">
+        <span>✋ Raise Hand</span>
+      </button>
+    </div>
+  </div>
+</div>

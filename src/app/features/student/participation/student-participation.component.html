@@ -1,0 +1,104 @@
+<div class="participation-page-container">
+  <!-- Top Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">My Classroom Engagement Record</h1>
+      <p class="page-subtitle">Student Profile: {{ authService.currentUser()?.name || 'Student' }} • {{ authService.currentUser()?.email }}</p>
+    </div>
+  </div>
+
+  <!-- 4 Stats Cards -->
+  <div class="stats-grid">
+    <app-stat-card
+      title="Overall Participation"
+      value="96%"
+      subtext="Exemplary engagement"
+      icon="award"
+      iconColorClass="icon-emerald"
+      delta="Top 5%"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Sessions Joined"
+      value="12 / 12"
+      subtext="100% Attendance"
+      icon="radio"
+      iconColorClass="icon-indigo"
+      delta="Perfect"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Polls Answered"
+      value="28 / 30"
+      subtext="93.3% Poll response"
+      icon="poll"
+      iconColorClass="icon-purple"
+      delta="+4 vs avg"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Average Quiz Score"
+      value="94%"
+      subtext="Grade: A+ Distinctions"
+      icon="check-circle-2"
+      iconColorClass="icon-amber"
+      delta="+12% vs Class Avg"
+      [deltaPositive]="true"
+    ></app-stat-card>
+  </div>
+
+  <!-- Participation Trend Chart -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Engagement Progression by Session</h3>
+    </div>
+    <div class="card-body">
+      <app-chart
+        type="line"
+        [data]="chartData"
+        [options]="chartOptions"
+        height="260px"
+      ></app-chart>
+    </div>
+  </div>
+
+  <!-- Participation Logs Table -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Session-by-Session Attendance & Interaction History</h3>
+    </div>
+    <div class="table-container" style="border: none; border-radius: 0;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Date</th>
+            <th>Attendance</th>
+            <th>Polls Answered</th>
+            <th>Quiz Score</th>
+            <th>Participation</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (session of classroomService.sessions(); track session.id) {
+            <tr>
+              <td><strong>#{{ session.sessionNumber }}</strong> • {{ session.title }}</td>
+              <td>{{ session.date }}</td>
+              <td><span class="badge badge-active">Present</span></td>
+              <td>{{ session.pollsCount }} / {{ session.pollsCount }} Answered</td>
+              <td>
+                <span class="badge badge-indigo font-bold">100% (A+)</span>
+              </td>
+              <td>
+                <span class="badge badge-active font-bold">100%</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

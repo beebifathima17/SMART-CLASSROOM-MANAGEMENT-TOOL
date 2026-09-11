@@ -1,0 +1,133 @@
+<div class="quiz-runner-container" *ngIf="quiz">
+  <!-- Top Quiz Header Bar -->
+  <div class="runner-topbar">
+    <div class="topbar-info">
+      <span class="quiz-category-tag">{{ quiz.subject }} • Web Technologies</span>
+      <h1 class="runner-quiz-title">{{ quiz.title }}</h1>
+    </div>
+
+    <div class="runner-topbar-right">
+      <!-- Live Timer -->
+      <div class="quiz-timer-badge" [class.timer-alert]="timeRemainingSeconds < 120">
+        <app-icon name="clock" [size]="16"></app-icon>
+        <div class="timer-inner">
+          <span class="t-label">TIME LEFT</span>
+          <span class="t-val">{{ formatTime(timeRemainingSeconds) }}</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        (click)="openSubmitConfirmation()"
+      >
+        <app-icon name="check" [size]="16"></app-icon>
+        Finish & Submit
+      </button>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="runner-progress-card">
+    <div class="progress-info-row">
+      <span class="q-progress-txt">
+        Question <strong>{{ currentQuestionIndex + 1 }}</strong> of {{ quiz.questions.length }}
+      </span>
+      <span class="q-answered-txt">
+        {{ answeredCount }} Answered • {{ unAnsweredCount }} Remaining
+      </span>
+    </div>
+    <div class="progress-bar-track">
+      <div
+        class="progress-bar-fill"
+        [style.width.%]="((currentQuestionIndex + 1) / quiz.questions.length) * 100"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Question View Card -->
+  <div class="card question-exam-card" *ngIf="quiz.questions[currentQuestionIndex] as q">
+    <div class="exam-card-header">
+      <div class="exam-q-number">Question {{ currentQuestionIndex + 1 }}</div>
+      <div class="exam-q-marks">{{ q.marks }} Marks</div>
+    </div>
+
+    <div class="exam-card-body">
+      <h2 class="exam-question-text">{{ q.questionText }}</h2>
+
+      <!-- Options -->
+      <div class="exam-options-stack">
+        @for (opt of q.options; track opt.id; let i = $index) {
+          <div
+            class="exam-option-item"
+            [class.opt-selected]="selectedAnswers[q.id] === opt.id"
+            (click)="selectOption(q.id, opt.id)"
+          >
+            <div class="opt-indicator-circle">
+              <span>{{ String.fromCharCode(65 + i) }}</span>
+            </div>
+            <span class="opt-label-text">{{ opt.text }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="exam-card-footer">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="prevQuestion()"
+        [disabled]="currentQuestionIndex === 0"
+      >
+        <app-icon name="arrow-left" [size]="15"></app-icon>
+        Previous
+      </button>
+
+      <!-- Question Index Jump Dots -->
+      <div class="question-jump-dots">
+        @for (item of quiz.questions; track item.id; let idx = $index) {
+          <button
+            type="button"
+            class="dot-btn"
+            [class.dot-current]="currentQuestionIndex === idx"
+            [class.dot-answered]="!!selectedAnswers[item.id]"
+            (click)="jumpToQuestion(idx)"
+          >
+            {{ idx + 1 }}
+          </button>
+        }
+      </div>
+
+      @if (currentQuestionIndex < quiz.questions.length - 1) {
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="nextQuestion()"
+        >
+          Next Question
+          <app-icon name="arrow-right" [size]="15"></app-icon>
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="openSubmitConfirmation()"
+        >
+          <app-icon name="check" [size]="15"></app-icon>
+          Submit Exam
+        </button>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Submit Confirmation Modal -->
+<app-confirm-modal
+  [isOpen]="isSubmitConfirmOpen"
+  title="Submit Assessment?"
+  [message]="'You have answered ' + answeredCount + ' of ' + (quiz?.questions?.length || 0) + ' questions. Are you sure you want to finalize your exam?'"
+  confirmText="Yes, Submit Exam"
+  cancelText="Review Answers"
+  (confirmEvent)="confirmSubmit()"
+  (cancelEvent)="isSubmitConfirmOpen = false"
+></app-confirm-modal>

@@ -1,0 +1,266 @@
+<div class="create-quiz-container">
+  <!-- Top Bar -->
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb-trail">
+        <a routerLink="/teacher/dashboard">Dashboard</a>
+        <app-icon name="chevron-right" [size]="12"></app-icon>
+        <span>Quiz Builder</span>
+      </div>
+      <h1 class="page-title">Build Classroom Assessment</h1>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" (click)="submitQuiz(false)" class="btn btn-secondary">
+        Save Draft
+      </button>
+      <button type="button" (click)="submitQuiz(true)" class="btn btn-primary">
+        <app-icon name="check" [size]="16"></app-icon>
+        Publish Quiz
+      </button>
+    </div>
+  </div>
+
+  <form [formGroup]="quizForm" class="quiz-builder-layout">
+    <!-- Main Left: Questions Builder -->
+    <div class="questions-main-col">
+      <!-- General Quiz Info Card -->
+      <div class="card p-6 mb-6">
+        <h3 class="section-card-title">Assessment Details</h3>
+        
+        <div class="form-group mt-4">
+          <label class="form-label form-label-required">Quiz Title</label>
+          <input
+            type="text"
+            formControlName="title"
+            class="form-control"
+            placeholder="e.g. Modern Frontend Architecture Quiz"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label form-label-required">Description / Instructions</label>
+          <textarea
+            formControlName="description"
+            rows="2"
+            class="form-control"
+            placeholder="Instructions for students taking this timed quiz..."
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Question List Section -->
+      <div class="questions-builder-header">
+        <h3 class="section-card-title">Questions ({{ questionsArray.length }})</h3>
+        <button
+          type="button"
+          (click)="addQuestion()"
+          class="btn btn-outline btn-sm"
+        >
+          <app-icon name="plus" [size]="14"></app-icon>
+          Add New Question
+        </button>
+      </div>
+
+      <div formArrayName="questions" class="questions-stack">
+        @for (qGroup of questionsArray.controls; track $index) {
+          <div [formGroupName]="$index" class="card question-builder-card">
+            <!-- Question Card Top Header -->
+            <div class="q-card-header">
+              <div class="q-card-header-left">
+                <span class="q-number-badge">Q{{ $index + 1 }}</span>
+                <span class="q-type-label">Multiple Choice</span>
+              </div>
+
+              <div class="q-card-header-actions">
+                <div class="marks-input-box">
+                  <label>Marks:</label>
+                  <input type="number" formControlName="marks" class="marks-input" min="1" />
+                </div>
+
+                <div class="reorder-group">
+                  <button
+                    type="button"
+                    class="btn-icon-reorder"
+                    (click)="moveQuestion($index, 'up')"
+                    [disabled]="$index === 0"
+                    title="Move Up"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-icon-reorder"
+                    (click)="moveQuestion($index, 'down')"
+                    [disabled]="$index === questionsArray.length - 1"
+                    title="Move Down"
+                  >
+                    ↓
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn-delete-q"
+                  (click)="removeQuestion($index)"
+                  title="Delete Question"
+                >
+                  <app-icon name="trash-2" [size]="16"></app-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Question Card Body -->
+            <div class="q-card-body">
+              <div class="form-group">
+                <label class="form-label form-label-required">Question Text</label>
+                <input
+                  type="text"
+                  formControlName="questionText"
+                  class="form-control font-semibold"
+                  placeholder="Type question prompt..."
+                />
+              </div>
+
+              <!-- Options with Correct Answer Selector -->
+              <div class="q-options-builder">
+                <div class="options-builder-top">
+                  <label class="form-label form-label-required">Options & Correct Answer</label>
+                  <span class="hint-text">(Select the radio button next to the correct answer)</span>
+                </div>
+
+                <div formArrayName="options" class="q-options-list">
+                  @for (optCtrl of getOptionsArray($index).controls; track $index; let optIdx = $index) {
+                    <div class="q-option-row">
+                      <label class="radio-select-wrapper" title="Mark as correct answer">
+                        <input
+                          type="radio"
+                          [name]="'correct-' + $index"
+                          [checked]="qGroup.get('correctOptionIndex')?.value === optIdx"
+                          (change)="qGroup.patchValue({ correctOptionIndex: optIdx })"
+                          class="correct-radio"
+                        />
+                        <span class="custom-radio-mark"></span>
+                      </label>
+
+                      <span class="opt-letter">{{ String.fromCharCode(65 + optIdx) }}.</span>
+
+                      <input
+                        type="text"
+                        [formControlName]="optIdx"
+                        class="form-control flex-1"
+                        placeholder="Option text..."
+                      />
+
+                      <button
+                        type="button"
+                        class="btn-opt-del"
+                        (click)="removeOptionFromQuestion($index, optIdx)"
+                        [disabled]="getOptionsArray($index).length <= 2"
+                        title="Remove choice"
+                      >
+                        <app-icon name="x" [size]="14"></app-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+
+                <button
+                  type="button"
+                  (click)="addOptionToQuestion($index)"
+                  class="btn btn-ghost btn-sm mt-2 text-indigo"
+                >
+                  <app-icon name="plus" [size]="13"></app-icon>
+                  Add Option Choice
+                </button>
+              </div>
+
+              <div class="form-group mt-4">
+                <label class="form-label">Explanation / Solution Note (Optional)</label>
+                <input
+                  type="text"
+                  formControlName="explanation"
+                  class="form-control text-sm"
+                  placeholder="Shown to students after submission..."
+                />
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <button
+        type="button"
+        (click)="addQuestion()"
+        class="btn btn-secondary w-full py-3 mt-4"
+        style="border-style: dashed;"
+      >
+        <app-icon name="plus" [size]="18"></app-icon>
+        Add Another Question
+      </button>
+    </div>
+
+    <!-- Right Sidebar: Settings & Summary -->
+    <div class="settings-sidebar-col">
+      <div class="card p-6 sticky-settings">
+        <h3 class="section-card-title">Quiz Settings</h3>
+
+        <div class="form-group mt-4">
+          <label class="form-label">Time Duration (Minutes)</label>
+          <div class="duration-input-box">
+            <app-icon name="clock" [size]="16" customClass="text-slate-400"></app-icon>
+            <input
+              type="number"
+              formControlName="durationMinutes"
+              class="form-control"
+              min="1"
+            />
+            <span class="input-suffix">mins</span>
+          </div>
+        </div>
+
+        <div class="settings-toggles-stack">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="shuffleQuestions" class="custom-checkbox" />
+            <span>Shuffle questions order</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="showScoreAfterSubmission" class="custom-checkbox" />
+            <span>Show score immediately upon submission</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="allowRetake" class="custom-checkbox" />
+            <span>Allow practice retakes</span>
+          </label>
+        </div>
+
+        <div class="quiz-summary-box">
+          <div class="summary-row">
+            <span>Total Questions:</span>
+            <strong>{{ questionsArray.length }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Total Marks:</span>
+            <strong class="text-indigo">{{ questionsArray.length * 10 }} pts</strong>
+          </div>
+          <div class="summary-row">
+            <span>Estimated Duration:</span>
+            <strong>{{ quizForm.get('durationMinutes')?.value }} mins</strong>
+          </div>
+        </div>
+
+        <div class="sidebar-action-buttons">
+          <button type="button" (click)="submitQuiz(true)" class="btn btn-primary w-full btn-lg">
+            <app-icon name="check" [size]="16"></app-icon>
+            Publish to Classroom
+          </button>
+          <button type="button" (click)="submitQuiz(false)" class="btn btn-secondary w-full">
+            Save Draft
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

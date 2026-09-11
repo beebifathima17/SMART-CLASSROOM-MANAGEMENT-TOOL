@@ -1,0 +1,363 @@
+<div class="teacher-dashboard">
+  <!-- Top Welcome Header -->
+  <div class="dashboard-header">
+    <div>
+      <h1 class="welcome-heading">Welcome, Professor {{ authService.currentUser()?.name }}</h1>
+      <p class="welcome-sub">
+        Classroom <strong>{{ classroomService.activeClassroom().courseCode }}</strong> • {{ classroomService.liveStudents().length }} students enrolled. Status: <strong>{{ classroomService.activeClassroom().isLive ? 'Live In Session' : 'Offline / Scheduled' }}</strong>
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button (click)="enterClassroom()" class="btn btn-primary shadow-md">
+        <app-icon name="radio" [size]="18"></app-icon>
+        {{ classroomService.activeClassroom().isLive ? 'Enter Live Classroom' : 'Start Live Session' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Pending Student Join Requests Banner (Teacher Approval) -->
+  @if (classroomService.pendingJoinRequests().length > 0) {
+    <div class="pending-admissions-banner">
+      <div class="banner-alert-left">
+        <div class="admissions-pulse-badge">
+          <span class="live-dot-pulse"></span>
+          <app-icon name="user" [size]="18"></app-icon>
+        </div>
+        <div>
+          <h4 class="admissions-alert-title">
+            {{ classroomService.pendingJoinRequests().length }} Student(s) Waiting for Admission
+          </h4>
+          <p class="admissions-alert-desc">
+            Students have entered PIN <strong>{{ classroomService.activeClassroom().roomCode }}</strong> and are waiting for your approval.
+          </p>
+        </div>
+      </div>
+
+      <div class="admissions-list-actions">
+        <div class="pending-students-chips">
+          @for (req of classroomService.pendingJoinRequests(); track req.id) {
+            <div class="student-req-chip">
+              <span class="req-name">{{ req.studentName }}</span>
+              <button
+                type="button"
+                class="btn-admit-chip"
+                (click)="classroomService.approveJoinRequest(req.id)"
+                title="Admit Student"
+              >
+                <app-icon name="check" [size]="14"></app-icon>
+                Admit
+              </button>
+              <button
+                type="button"
+                class="btn-deny-chip"
+                (click)="classroomService.rejectJoinRequest(req.id)"
+                title="Decline"
+              >
+                <app-icon name="x" [size]="14"></app-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (classroomService.pendingJoinRequests().length > 1) {
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            (click)="classroomService.admitAllPendingRequests()"
+          >
+            Admit All
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- 4 Core Statistics Cards -->
+  <div class="stats-grid">
+    <app-stat-card
+      title="Live Session Status"
+      [value]="classroomService.activeClassroom().isLive ? '1 Live' : '0 Offline'"
+      [subtext]="classroomService.activeClassroom().name + ' (' + classroomService.activeClassroom().courseCode + ')'"
+      icon="radio"
+      iconColorClass="icon-rose"
+      [delta]="classroomService.activeClassroom().isLive ? 'In Progress' : 'Idle'"
+      [deltaPositive]="classroomService.activeClassroom().isLive"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Total Enrolled Students"
+      [value]="classroomService.liveStudents().length"
+      subtext="Across active class roster"
+      icon="users"
+      iconColorClass="icon-indigo"
+      [delta]="classroomService.liveStudents().length > 0 ? (classroomService.liveStudents().length + ' Connected') : 'No Students Yet'"
+      [deltaPositive]="classroomService.liveStudents().length > 0"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Poll Responses"
+      [value]="totalPollVotes"
+      subtext="Real-time submitted votes"
+      icon="poll"
+      iconColorClass="icon-purple"
+      [delta]="totalPollVotes > 0 ? (totalPollVotes + ' Total') : '0 Submitted'"
+      [deltaPositive]="totalPollVotes > 0"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Average Participation"
+      [value]="avgParticipationRate + '%'"
+      [subtext]="classroomService.liveStudents().length > 0 ? 'Live turnout rate' : 'No activity recorded'"
+      icon="award"
+      iconColorClass="icon-emerald"
+      [delta]="avgParticipationRate > 0 ? (avgParticipationRate + '% Average') : '0%'"
+      [deltaPositive]="avgParticipationRate > 0"
+    ></app-stat-card>
+  </div>
+
+  <!-- Active Classroom Banner Card -->
+  <div class="active-class-card" [class.card-offline]="!classroomService.activeClassroom().isLive">
+    <div class="active-class-left">
+      <div class="live-pulse-badge" [class.badge-offline]="!classroomService.activeClassroom().isLive">
+        <span class="live-dot-pulse" *ngIf="classroomService.activeClassroom().isLive"></span>
+        <span>{{ classroomService.activeClassroom().isLive ? 'CLASSROOM IN SESSION' : 'CLASSROOM OFFLINE' }}</span>
+      </div>
+      <h2 class="class-title">{{ classroomService.activeClassroom().name }} ({{ classroomService.activeClassroom().courseCode }})</h2>
+      <p class="class-desc">
+        {{ classroomService.activeClassroom().schedule }} • {{ classroomService.activeClassroom().roomLocation }}
+      </p>
+
+      <div class="class-meta-tags">
+        <div class="meta-tag">
+          <app-icon name="users" [size]="15"></app-icon>
+          <span><strong>{{ classroomService.liveStudents().length }}</strong> Connected Students</span>
+        </div>
+        <div class="meta-tag room-code-tag">
+          <span>PIN:</span>
+          <strong>{{ classroomService.activeClassroom().roomCode }}</strong>
+        </div>
+        <div class="meta-tag" *ngIf="classroomService.activeClassroom().isLive">
+          <app-icon name="clock" [size]="15"></app-icon>
+          <span>Started at {{ classroomService.activeClassroom().startedAt || '10:00 AM' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="active-class-right">
+      <button (click)="enterClassroom()" class="btn btn-primary btn-lg shadow-md">
+        <app-icon name="radio" [size]="18"></app-icon>
+        {{ classroomService.activeClassroom().isLive ? 'Enter Live Classroom' : 'Start Live Session' }}
+      </button>
+      <button (click)="createPoll()" class="btn btn-secondary">
+        <app-icon name="plus" [size]="16"></app-icon>
+        Launch Instant Poll
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick Action Shortcuts -->
+  <div class="quick-actions-bar">
+    <div class="quick-title">Quick Actions:</div>
+    <div class="quick-buttons">
+      <button (click)="createPoll()" class="quick-btn">
+        <app-icon name="poll" [size]="16" customClass="text-indigo"></app-icon>
+        <span>Create Poll</span>
+      </button>
+      <button (click)="createQuiz()" class="quick-btn">
+        <app-icon name="quiz" [size]="16" customClass="text-purple"></app-icon>
+        <span>Create Quiz</span>
+      </button>
+      <button routerLink="/teacher/classrooms" class="quick-btn">
+        <app-icon name="book-open" [size]="16" customClass="text-emerald"></app-icon>
+        <span>Classrooms</span>
+      </button>
+      <button (click)="enterClassroom()" class="quick-btn">
+        <app-icon name="radio" [size]="16" customClass="text-rose"></app-icon>
+        <span>Start Classroom</span>
+      </button>
+      <button routerLink="/teacher/leaderboard" class="quick-btn">
+        <app-icon name="award" [size]="16" customClass="text-purple"></app-icon>
+        <span>Leaderboard</span>
+      </button>
+      <button routerLink="/teacher/analytics" class="quick-btn">
+        <app-icon name="bar-chart-3" [size]="16" customClass="text-emerald"></app-icon>
+        <span>View Analytics</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Split Layout: Chart + Recent Tables -->
+  <div class="dashboard-main-grid">
+    <!-- Participation Trend Chart Card -->
+    <div class="card chart-card">
+      <div class="card-header">
+        <div>
+          <h3 class="card-title">Classroom Participation & Quiz Trends</h3>
+          <p class="card-subtitle">Real-time engagement vs. student quiz averages for {{ classroomService.activeClassroom().name }}</p>
+        </div>
+        <a routerLink="/teacher/analytics" class="btn btn-ghost btn-sm">
+          Detailed Analytics
+          <app-icon name="chevron-right" [size]="14"></app-icon>
+        </a>
+      </div>
+      <div class="card-body">
+        <app-chart
+          type="line"
+          [data]="chartData"
+          [options]="chartOptions"
+          height="280px"
+        ></app-chart>
+      </div>
+    </div>
+
+    <!-- Recent Polls Card -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="card-title">Recent Polls</h3>
+          <p class="card-subtitle">Active and archived polling questions</p>
+        </div>
+        <button (click)="createPoll()" class="btn btn-outline btn-sm">
+          <app-icon name="plus" [size]="14"></app-icon>
+          New Poll
+        </button>
+      </div>
+      <div class="table-container" style="border: none; border-radius: 0;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Poll Question</th>
+              <th>Responses</th>
+              <th>Turnout</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (poll of pollService.polls().slice(0, 5); track poll.id) {
+              <tr>
+                <td>
+                  <div class="poll-cell">
+                    <span class="poll-question-text">{{ poll.question }}</span>
+                    <span class="poll-meta">{{ poll.title }} • {{ poll.createdAt }}</span>
+                  </div>
+                </td>
+                <td><strong>{{ poll.totalResponses }}</strong> votes</td>
+                <td>
+                  <span class="badge badge-indigo">
+                    {{ classroomService.liveStudents().length > 0 ? Math.round((poll.totalResponses / classroomService.liveStudents().length) * 100) : 0 }}%
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="badge"
+                    [ngClass]="poll.status === 'active' ? 'badge-live' : 'badge-draft'"
+                  >
+                    {{ poll.status }}
+                  </span>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    @if (poll.status === 'active') {
+                      <a routerLink="/teacher/polls/live" class="btn btn-primary btn-sm">
+                        <app-icon name="eye" [size]="14"></app-icon>
+                        Live
+                      </a>
+                    } @else {
+                      <button (click)="startLivePoll(poll.id)" class="btn btn-secondary btn-sm">
+                        <app-icon name="play" [size]="14"></app-icon>
+                        Relaunch
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="btn btn-danger btn-sm"
+                      (click)="pollService.deletePoll(poll.id)"
+                      title="Delete Poll"
+                    >
+                      <app-icon name="trash" [size]="14"></app-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 2.5rem 1rem; color: var(--slate-400);">
+                  No polls created yet. Click <strong>"New Poll"</strong> above or launch an instant pulse from Live Classroom.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Quizzes Card -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="card-title">Recent Quizzes & Assessments</h3>
+          <p class="card-subtitle">Timed tests and concept checkpoints</p>
+        </div>
+        <button (click)="createQuiz()" class="btn btn-outline btn-sm">
+          <app-icon name="plus" [size]="14"></app-icon>
+          Build Quiz
+        </button>
+      </div>
+      <div class="table-container" style="border: none; border-radius: 0;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Quiz Title</th>
+              <th>Questions</th>
+              <th>Submissions</th>
+              <th>Avg Score</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (quiz of quizService.quizzes(); track quiz.id) {
+              <tr>
+                <td>
+                  <div class="quiz-cell">
+                    <span class="quiz-title-text">{{ quiz.title }}</span>
+                    <span class="quiz-meta">{{ quiz.subject }} • {{ quiz.durationMinutes }} mins</span>
+                  </div>
+                </td>
+                <td>{{ quiz.totalQuestions }} questions ({{ quiz.totalMarks }} pts)</td>
+                <td><strong>{{ quiz.completedCount || 0 }}</strong> students</td>
+                <td>
+                  <span class="badge badge-active font-bold">
+                    {{ quiz.averageScore || 0 }}% Avg
+                  </span>
+                </td>
+                <td>
+                  <span class="badge badge-indigo">{{ quiz.status }}</span>
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    (click)="quizService.deleteQuiz(quiz.id)"
+                    title="Delete Quiz"
+                  >
+                    <app-icon name="trash" [size]="14"></app-icon>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: var(--slate-400);">
+                  No quizzes created yet. Click <strong>"Build Quiz"</strong> above to create your first assessment.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

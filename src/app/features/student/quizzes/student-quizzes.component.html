@@ -1,0 +1,124 @@
+<div class="student-quizzes-container">
+  <!-- Header Bar -->
+  <div class="quizzes-header">
+    <div>
+      <h1 class="text-2xl font-bold">Classroom Quizzes & Assessments</h1>
+      <p class="text-secondary text-sm mt-1">
+        Take live timed assessments for {{ classroomService.activeClassroom().name }} and track your scores.
+      </p>
+    </div>
+  </div>
+
+  <!-- Active Quizzes Section -->
+  <div class="quizzes-section mb-8">
+    <div class="section-title-row">
+      <div class="flex items-center gap-2">
+        <span class="live-pulse-dot"></span>
+        <h2 class="text-lg font-bold">Live Assessments Available Now</h2>
+      </div>
+      <span class="badge badge-live">{{ activeQuizzes().length }} Available</span>
+    </div>
+
+    @if (activeQuizzes().length > 0) {
+      <div class="quizzes-grid">
+        @for (quiz of activeQuizzes(); track quiz.id) {
+          <div class="card quiz-card" [class.card-completed]="isQuizAttempted(quiz.id)">
+            <div class="quiz-card-header">
+              <span class="badge" [ngClass]="isQuizAttempted(quiz.id) ? 'badge-indigo' : 'badge-live'">
+                {{ isQuizAttempted(quiz.id) ? 'ATTEMPTED' : 'LIVE NOW' }}
+              </span>
+              <span class="text-xs text-muted font-semibold">{{ quiz.subject }}</span>
+            </div>
+
+            <h3 class="quiz-title">{{ quiz.title }}</h3>
+            <p class="quiz-desc">{{ quiz.description || 'Answer all questions before the timer ends.' }}</p>
+
+            <div class="quiz-meta-grid">
+              <div class="meta-box">
+                <span class="m-label">Questions</span>
+                <strong class="m-val">{{ quiz.totalQuestions || quiz.questions.length }}</strong>
+              </div>
+              <div class="meta-box">
+                <span class="m-label">Duration</span>
+                <strong class="m-val">{{ quiz.durationMinutes }}m</strong>
+              </div>
+              <div class="meta-box">
+                <span class="m-label">Total Marks</span>
+                <strong class="m-val">{{ quiz.totalMarks }} pts</strong>
+              </div>
+              <div class="meta-box" *ngIf="isQuizAttempted(quiz.id)">
+                <span class="m-label">Your Score</span>
+                <strong class="m-val text-emerald">{{ getSubmission(quiz.id)?.percentage }}%</strong>
+              </div>
+            </div>
+
+            <div class="quiz-card-footer">
+              @if (isQuizAttempted(quiz.id)) {
+                <button type="button" class="btn btn-outline btn-sm w-full" (click)="viewResult(quiz.id)">
+                  <app-icon name="check-circle-2" [size]="15"></app-icon>
+                  View My Result
+                </button>
+              } @else {
+                <button type="button" class="btn btn-primary btn-sm w-full" (click)="startQuiz(quiz.id)">
+                  <app-icon name="play" [size]="15"></app-icon>
+                  Start Assessment
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="card p-8 text-center">
+        <app-icon name="quiz" [size]="36" customClass="text-slate-300"></app-icon>
+        <h4 class="font-bold text-base mt-2">No Live Assessments Right Now</h4>
+        <p class="text-secondary text-xs mt-1">Your instructor has not launched an active timed quiz yet. Check back during class.</p>
+      </div>
+    }
+  </div>
+
+  <!-- All Class Quizzes History -->
+  <div class="quizzes-section" *ngIf="allQuizzes().length > activeQuizzes().length">
+    <h2 class="text-lg font-bold mb-4">All Course Quizzes</h2>
+    <div class="quizzes-grid">
+      @for (quiz of allQuizzes(); track quiz.id) {
+        @if (quiz.status !== 'published') {
+          <div class="card quiz-card">
+            <div class="quiz-card-header">
+              <span class="badge badge-draft">{{ quiz.status | uppercase }}</span>
+              <span class="text-xs text-muted font-semibold">{{ quiz.subject }}</span>
+            </div>
+
+            <h3 class="quiz-title">{{ quiz.title }}</h3>
+            <p class="quiz-desc">{{ quiz.description || 'Classroom assessment.' }}</p>
+
+            <div class="quiz-meta-grid">
+              <div class="meta-box">
+                <span class="m-label">Questions</span>
+                <strong class="m-val">{{ quiz.totalQuestions || quiz.questions.length }}</strong>
+              </div>
+              <div class="meta-box">
+                <span class="m-label">Duration</span>
+                <strong class="m-val">{{ quiz.durationMinutes }}m</strong>
+              </div>
+              <div class="meta-box">
+                <span class="m-label">Marks</span>
+                <strong class="m-val">{{ quiz.totalMarks }} pts</strong>
+              </div>
+            </div>
+
+            <div class="quiz-card-footer">
+              @if (isQuizAttempted(quiz.id)) {
+                <button type="button" class="btn btn-outline btn-sm w-full" (click)="viewResult(quiz.id)">
+                  View Result ({{ getSubmission(quiz.id)?.percentage }}%)
+                </button>
+              } @else {
+                <span class="text-xs text-slate-400 block text-center w-full">Quiz currently closed</span>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>

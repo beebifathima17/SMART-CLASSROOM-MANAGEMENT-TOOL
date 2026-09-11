@@ -1,0 +1,175 @@
+<div class="polls-page-container">
+  <!-- Header Bar -->
+  <div class="polls-page-header">
+    <div>
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl font-bold">Interactive Polls</h1>
+        <span class="badge badge-indigo">{{ pollService.polls().length }} Total</span>
+      </div>
+      <p class="text-secondary text-sm mt-1">
+        Create, launch, and monitor live comprehension checks and pulse surveys for {{ classroomService.activeClassroom().name }}.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      @if (pollService.activePoll()) {
+        <a routerLink="/teacher/polls/live" class="btn btn-warning shadow-md animate-pulse">
+          <app-icon name="radio" [size]="16"></app-icon>
+          <span>Active Poll Live</span>
+        </a>
+      }
+      <button (click)="goToCreatePoll()" class="btn btn-primary shadow-md">
+        <app-icon name="plus" [size]="16"></app-icon>
+        <span>Create New Poll</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter & Search Controls -->
+  <div class="card p-4 mb-6 shadow-sm">
+    <div class="filter-controls-row">
+      <div class="filter-pills-wrap">
+        <button
+          type="button"
+          class="filter-pill"
+          [class.pill-active]="selectedFilter === 'all'"
+          (click)="selectedFilter = 'all'"
+        >
+          All ({{ pollService.polls().length }})
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.pill-active]="selectedFilter === 'active'"
+          (click)="selectedFilter = 'active'"
+        >
+          Active
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.pill-active]="selectedFilter === 'ended'"
+          (click)="selectedFilter = 'ended'"
+        >
+          Ended
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.pill-active]="selectedFilter === 'draft'"
+          (click)="selectedFilter = 'draft'"
+        >
+          Drafts
+        </button>
+      </div>
+
+      <div class="search-input-box">
+        <app-icon name="search" [size]="16" customClass="text-slate-400"></app-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search polls by title or question..."
+          class="poll-search-input"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Polls Grid -->
+  @if (filteredPolls().length > 0) {
+    <div class="polls-cards-grid">
+      @for (poll of filteredPolls(); track poll.id) {
+        <div class="card poll-item-card" [class.card-is-active]="poll.status === 'active'">
+          <div class="poll-card-top">
+            <div class="poll-type-badge">
+              <span class="badge" [ngClass]="{
+                'badge-live': poll.status === 'active',
+                'badge-draft': poll.status === 'draft',
+                'badge-indigo': poll.status === 'ended'
+              }">
+                {{ poll.status | uppercase }}
+              </span>
+              <span class="text-xs text-muted font-semibold uppercase">{{ poll.type.replace('_', ' ') }}</span>
+            </div>
+
+            <button
+              type="button"
+              class="btn-delete-poll"
+              (click)="deletePoll(poll, $event)"
+              title="Delete this poll"
+            >
+              <app-icon name="trash-2" [size]="16" customClass="text-rose"></app-icon>
+            </button>
+          </div>
+
+          <div class="poll-card-main">
+            <h3 class="poll-card-title">{{ poll.title }}</h3>
+            <p class="poll-card-question">"{{ poll.question }}"</p>
+
+            <div class="poll-options-preview">
+              @for (opt of poll.options.slice(0, 3); track opt.id) {
+                <div class="opt-preview-pill">
+                  <span class="opt-bullet">•</span>
+                  <span class="opt-label">{{ opt.text }}</span>
+                  <span class="opt-votes-badge" *ngIf="poll.totalResponses > 0">{{ opt.percentage }}%</span>
+                </div>
+              }
+              @if (poll.options.length > 3) {
+                <span class="text-xs text-muted italic">+{{ poll.options.length - 3 }} more options</span>
+              }
+            </div>
+          </div>
+
+          <div class="poll-card-footer">
+            <div class="poll-meta-left">
+              <span class="meta-item">
+                <app-icon name="users" [size]="14"></app-icon>
+                <strong>{{ poll.totalResponses }}</strong> responses
+              </span>
+              <span class="meta-item" *ngIf="poll.timeLimitSeconds">
+                <app-icon name="clock" [size]="14"></app-icon>
+                {{ poll.timeLimitSeconds }}s
+              </span>
+            </div>
+
+            <div class="poll-card-actions">
+              @if (poll.status === 'active') {
+                <button type="button" class="btn btn-outline btn-sm" (click)="endPoll(poll.id)">
+                  End Poll
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" (click)="viewLive(poll.id)">
+                  View Live
+                </button>
+              } @else {
+                <button type="button" class="btn btn-primary btn-sm" (click)="launchPoll(poll.id)">
+                  <app-icon name="radio" [size]="14"></app-icon>
+                  Launch Poll
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Empty State -->
+    <div class="card p-12 text-center empty-polls-card">
+      <div class="empty-icon-circle">
+        <app-icon name="poll" [size]="40" customClass="text-indigo"></app-icon>
+      </div>
+      <h3 class="text-xl font-bold mt-4">No Polls Found</h3>
+      <p class="text-secondary text-sm mt-1 max-w-md mx-auto">
+        {{ searchTerm ? 'No polls match your search query. Try resetting your search filter.' : 'You have not created any polls for this classroom yet. Create your first interactive poll now!' }}
+      </p>
+      <div class="mt-6 flex justify-center gap-3">
+        <button *ngIf="searchTerm" type="button" class="btn btn-secondary" (click)="searchTerm = ''; selectedFilter = 'all'">
+          Clear Filters
+        </button>
+        <button type="button" class="btn btn-primary" (click)="goToCreatePoll()">
+          <app-icon name="plus" [size]="16"></app-icon>
+          Create First Poll
+        </button>
+      </div>
+    </div>
+  }
+</div>

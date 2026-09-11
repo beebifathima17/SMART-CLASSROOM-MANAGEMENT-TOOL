@@ -1,0 +1,151 @@
+<div class="admin-users-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Institutional User Directory</h1>
+      <p class="page-subtitle">Manage faculty, student accounts, and access credentials</p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="btn btn-primary btn-sm" (click)="openAddModal()">
+        <app-icon name="plus" [size]="14"></app-icon>
+        Add New User
+      </button>
+    </div>
+  </div>
+
+  <!-- Search & Role Filters -->
+  <div class="card search-filter-card">
+    <div class="search-box">
+      <app-icon name="search" [size]="15" customClass="text-slate-400"></app-icon>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        placeholder="Search by user name or email..."
+        class="search-input"
+      />
+    </div>
+
+    <div class="role-filter-box">
+      <label class="filter-label">Filter Role:</label>
+      <select [(ngModel)]="roleFilter" class="form-control form-select role-select">
+        <option value="all">All Roles</option>
+        <option value="teacher">Teachers / Faculty</option>
+        <option value="student">Students</option>
+        <option value="admin">Administrators</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="card">
+    <div class="table-container" style="border: none; border-radius: 0;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Department / Institution</th>
+            <th>Joined Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filteredUsers; track user.id) {
+            <tr>
+              <td>
+                <div class="user-row-cell">
+                  <span class="user-name-txt">{{ user.name }}</span>
+                  <span class="user-email-txt">{{ user.email }}</span>
+                </div>
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'badge-indigo': user.role === 'teacher',
+                    'badge-purple': user.role === 'student',
+                    'badge-amber': user.role === 'admin'
+                  }"
+                >
+                  {{ user.role }}
+                </span>
+              </td>
+              <td>{{ user.department }}</td>
+              <td>{{ user.joinedDate }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="user.status === 'active' ? 'badge-active' : 'badge-draft'"
+                >
+                  {{ user.status }}
+                </span>
+              </td>
+              <td>
+                <div class="actions-group">
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    [ngClass]="user.status === 'active' ? 'btn-danger' : 'btn-success'"
+                    (click)="toggleUserStatus(user)"
+                  >
+                    {{ user.status === 'active' ? 'Deactivate' : 'Activate' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: var(--slate-400);">
+                No users found. Click "Add New User" or register accounts via sign-in.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<app-modal
+  [isOpen]="isAddUserModalOpen"
+  title="Add New Institutional User"
+  subtitle="Register a faculty member or student account"
+  maxWidth="500px"
+  (closeEvent)="closeAddModal()"
+>
+  <div modal-body>
+    <div class="form-group">
+      <label class="form-label form-label-required">Full Name</label>
+      <input type="text" [(ngModel)]="newUser.name" class="form-control" placeholder="e.g. Prof. Arvind Swamy" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label form-label-required">Institutional Email</label>
+      <input type="email" [(ngModel)]="newUser.email" class="form-control" placeholder="e.g. a.swamy@nit.edu" />
+    </div>
+
+    <div class="form-row" style="display: flex; gap: 0.75rem;">
+      <div class="form-group flex-1">
+        <label class="form-label form-label-required">Role</label>
+        <select [(ngModel)]="newUser.role" class="form-control form-select">
+          <option value="student">Student</option>
+          <option value="teacher">Teacher / Faculty</option>
+          <option value="admin">Administrator</option>
+        </select>
+      </div>
+
+      <div class="form-group flex-1">
+        <label class="form-label">Department</label>
+        <input type="text" [(ngModel)]="newUser.department" class="form-control" placeholder="e.g. CSE" />
+      </div>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-secondary btn-sm" (click)="closeAddModal()">Cancel</button>
+    <button type="button" class="btn btn-primary btn-sm" (click)="saveNewUser()">Save User</button>
+  </div>
+</app-modal>

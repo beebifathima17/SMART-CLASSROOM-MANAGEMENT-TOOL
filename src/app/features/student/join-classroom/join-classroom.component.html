@@ -1,0 +1,125 @@
+<div class="join-room-container">
+  <!-- State 1: PIN Input State -->
+  @if (joinStatus === 'idle') {
+    <div class="join-main-box">
+      <div class="join-header">
+        <div class="join-icon-circle">
+          <app-icon name="radio" [size]="28" [strokeWidth]="2.5"></app-icon>
+        </div>
+        <h1 class="join-title">Join a Classroom</h1>
+        <p class="join-subtitle">Enter the 6-character room PIN provided by your instructor</p>
+      </div>
+
+      <form (ngSubmit)="joinClassroom()" class="join-form">
+        <div class="pin-input-wrap">
+          <input
+            type="text"
+            [(ngModel)]="roomCode"
+            name="roomCode"
+            placeholder="e.g. WT7K92"
+            maxlength="6"
+            class="pin-large-input"
+            autocomplete="off"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg w-full"
+          [disabled]="!roomCode"
+        >
+          <app-icon name="radio" [size]="18"></app-icon>
+          Request to Join Classroom
+        </button>
+      </form>
+
+      <div class="demo-tip">
+        <app-icon name="sparkles" [size]="15" customClass="text-indigo"></app-icon>
+        <span>Room Code: <strong>WT7K92</strong> (Web Technologies WT301)</span>
+      </div>
+    </div>
+  }
+
+  <!-- State 2: Waiting for Teacher Approval -->
+  @if (joinStatus === 'pending') {
+    <div class="join-main-box waiting-box">
+      <div class="waiting-animation-wrap">
+        <div class="pulse-ring ring-1"></div>
+        <div class="pulse-ring ring-2"></div>
+        <div class="waiting-icon-center">
+          <app-icon name="clock" [size]="32" [strokeWidth]="2.5"></app-icon>
+        </div>
+      </div>
+
+      <span class="badge badge-warning font-bold text-xs uppercase tracking-wider mb-3">
+        Waiting for Teacher Approval
+      </span>
+
+      <h2 class="waiting-title">Request Sent to Instructor</h2>
+      <p class="waiting-subtitle">
+        You have requested to enter <strong>{{ pendingClassroomName }}</strong> (PIN: <strong>{{ pendingRoomCode }}</strong>).
+      </p>
+
+      <div class="waiting-status-card">
+        <div class="status-indicator-dot animate-pulse"></div>
+        <div class="status-msg-wrap">
+          <span class="status-primary-txt">Waiting for teacher to accept your admission...</span>
+          <span class="status-secondary-txt">This screen will automatically enter the live room once approved.</span>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-secondary btn-sm mt-6" (click)="cancelRequest()">
+        Cancel Request & Enter Another Code
+      </button>
+    </div>
+  }
+
+  <!-- State 3: Approved / Transitioning -->
+  @if (joinStatus === 'approved') {
+    <div class="join-main-box approved-box">
+      <div class="approved-icon-circle animate-bounce">
+        <app-icon name="check-circle-2" [size]="36" customClass="text-emerald"></app-icon>
+      </div>
+      <h2 class="waiting-title text-emerald">Admission Approved!</h2>
+      <p class="waiting-subtitle">Entering live classroom session now...</p>
+    </div>
+  }
+
+  <!-- State 4: Rejected -->
+  @if (joinStatus === 'rejected') {
+    <div class="join-main-box rejected-box">
+      <div class="rejected-icon-circle">
+        <app-icon name="x-circle" [size]="36" customClass="text-rose"></app-icon>
+      </div>
+      <h2 class="waiting-title text-rose">Admission Request Declined</h2>
+      <p class="waiting-subtitle">The instructor has declined entry to this room. Please speak with your professor.</p>
+      <button type="button" class="btn btn-secondary btn-sm mt-4" (click)="cancelRequest()">
+        Try Another Room Code
+      </button>
+    </div>
+  }
+
+  <!-- Active Classrooms Quick Access -->
+  @if (joinStatus === 'idle') {
+    <div class="recent-rooms-section">
+      <h3 class="recent-title">Active Live Classrooms</h3>
+      <div class="recent-grid">
+        @for (room of recentClassrooms; track room.code) {
+          <div class="card recent-room-card" (click)="fillCode(room.code)">
+            <div class="recent-card-top">
+              <span class="room-code-badge">{{ room.code }}</span>
+              <span class="badge badge-live">Live Now</span>
+            </div>
+
+            <h4 class="recent-room-name">{{ room.name }}</h4>
+            <span class="recent-room-teacher">{{ room.teacher }}</span>
+
+            <button type="button" class="btn btn-outline btn-sm w-full mt-3">
+              Request to Enter
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

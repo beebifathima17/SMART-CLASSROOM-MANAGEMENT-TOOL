@@ -1,0 +1,217 @@
+<div class="students-page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Enrolled Students Directory</h1>
+      <p class="page-subtitle">{{ classroomService.activeClassroom().name }} ({{ classroomService.activeClassroom().courseCode }}) • {{ classroomService.liveStudents().length }} Enrolled Students</p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="btn btn-primary btn-sm" (click)="openAddStudent()">
+        <app-icon name="plus" [size]="14"></app-icon>
+        Add Student
+      </button>
+    </div>
+  </div>
+
+  <!-- Pending Student Join Requests Banner (Teacher Approval) -->
+  @if (classroomService.pendingJoinRequests().length > 0) {
+    <div class="pending-admissions-banner">
+      <div class="banner-alert-left">
+        <div class="admissions-pulse-badge">
+          <span class="live-dot-pulse"></span>
+          <app-icon name="user" [size]="18"></app-icon>
+        </div>
+        <div>
+          <h4 class="admissions-alert-title">
+            {{ classroomService.pendingJoinRequests().length }} Student(s) Waiting for Admission
+          </h4>
+          <p class="admissions-alert-desc">
+            Students have requested to join with PIN <strong>{{ classroomService.activeClassroom().roomCode }}</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div class="admissions-list-actions">
+        <div class="pending-students-chips">
+          @for (req of classroomService.pendingJoinRequests(); track req.id) {
+            <div class="student-req-chip">
+              <span class="req-name">{{ req.studentName }}</span>
+              <button
+                type="button"
+                class="btn-admit-chip"
+                (click)="classroomService.approveJoinRequest(req.id)"
+                title="Admit Student"
+              >
+                <app-icon name="check" [size]="14"></app-icon>
+                Admit
+              </button>
+              <button
+                type="button"
+                class="btn-deny-chip"
+                (click)="classroomService.rejectJoinRequest(req.id)"
+                title="Decline"
+              >
+                <app-icon name="x" [size]="14"></app-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (classroomService.pendingJoinRequests().length > 1) {
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            (click)="classroomService.admitAllPendingRequests()"
+          >
+            Admit All
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Search & Filter Bar Card -->
+  <div class="card search-filter-card" *ngIf="classroomService.liveStudents().length > 0">
+    <div class="search-wrap">
+      <app-icon name="search" [size]="16" customClass="text-slate-400"></app-icon>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Search student by name or email..."
+        class="search-input-field"
+      />
+    </div>
+
+    <div class="filters-wrap">
+      <label class="filter-label">Filter Status:</label>
+      <select [(ngModel)]="statusFilter" class="form-control form-select filter-select">
+        <option value="all">All Students</option>
+        <option value="answered">Answered Live</option>
+        <option value="active">Active Online</option>
+        <option value="not_responded">Not Responded</option>
+        <option value="idle">Idle</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Students Data Table -->
+  <div class="card">
+    @if (students.length > 0) {
+      <div class="table-container" style="border: none; border-radius: 0;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Email</th>
+              <th>Sessions Attended</th>
+              <th>Poll Responses</th>
+              <th>Quiz Average</th>
+              <th>Participation</th>
+              <th>Live Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (student of students; track student.id) {
+              <tr>
+                <td>
+                  <div class="student-profile-cell">
+                    <img
+                      [src]="student.avatarUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + student.name"
+                      [alt]="student.name"
+                      class="avatar-circle"
+                    />
+                    <div class="name-details">
+                      <span class="name-text font-bold">{{ student.name }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ student.email }}</td>
+                <td><strong>{{ student.sessionsAttended }}</strong> / 1</td>
+                <td><strong>{{ student.pollsAnswered }}</strong> / 1</td>
+                <td>
+                  <span class="badge badge-active">{{ student.quizAverage }}%</span>
+                </td>
+                <td>
+                  <div class="participation-metric">
+                    <span class="pct-text">{{ student.participationPercentage }}%</span>
+                    <div class="pct-bar">
+                      <div class="pct-fill" [style.width.%]="student.participationPercentage"></div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span
+                    class="badge"
+                    [ngClass]="{
+                      'badge-active': student.status === 'answered' || student.status === 'active',
+                      'badge-amber': student.status === 'not_responded',
+                      'badge-draft': student.status === 'idle'
+                    }"
+                  >
+                    {{ student.status.replace('_', ' ') | titlecase }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-sm"
+                    (click)="viewStudentProfile(student)"
+                  >
+                    <app-icon name="eye" [size]="13"></app-icon>
+                    Details
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="p-12 text-center">
+        <app-icon name="user" [size]="48" customClass="text-slate-300"></app-icon>
+        <h3 class="text-lg font-bold mt-4 text-slate-800">No Students in Roster Yet</h3>
+        <p class="text-sm text-slate-500 max-w-md mx-auto mt-1">
+          Students who enter Room PIN <strong>{{ classroomService.activeClassroom().roomCode }}</strong> and are approved by you, or whom you enroll manually, will appear here.
+        </p>
+        <button type="button" class="btn btn-primary btn-sm mt-4" (click)="openAddStudent()">
+          <app-icon name="plus" [size]="14"></app-icon>
+          Add First Student
+        </button>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Detailed Modal View -->
+<app-student-detail-modal
+  [student]="selectedStudent"
+  (closeEvent)="closeModal()"
+></app-student-detail-modal>
+
+<!-- Add Student Modal -->
+<app-modal
+  [isOpen]="isAddStudentModalOpen"
+  title="Enroll Student to Classroom"
+  subtitle="Add a student directly into the active classroom roster"
+  maxWidth="480px"
+  (closeEvent)="closeAddStudent()"
+>
+  <div modal-body>
+    <div class="form-group">
+      <label class="form-label form-label-required">Student Full Name</label>
+      <input type="text" [(ngModel)]="newStudent.name" class="form-control" placeholder="e.g. Alex Johnson" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label form-label-required">Student Email</label>
+      <input type="email" [(ngModel)]="newStudent.email" class="form-control" placeholder="e.g. alex.j@university.edu" />
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-secondary btn-sm" (click)="closeAddStudent()">Cancel</button>
+    <button type="button" class="btn btn-primary btn-sm" (click)="saveStudent()">Enroll Student</button>
+  </div>
+</app-modal>

@@ -1,0 +1,230 @@
+<app-toast-container></app-toast-container>
+
+<div class="app-layout" [class.sidebar-collapsed]="isSidebarCollapsed()">
+  <!-- Mobile Backdrop -->
+  @if (isMobileSidebarOpen()) {
+    <div class="mobile-backdrop" (click)="closeMobileSidebar()"></div>
+  }
+
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.mobile-open]="isMobileSidebarOpen()">
+    <!-- Brand Logo -->
+    <div class="sidebar-brand">
+      <a routerLink="/" class="brand-link">
+        <div class="brand-logo-icon">
+          <app-icon name="sparkles" [size]="20" [strokeWidth]="2.5"></app-icon>
+        </div>
+        @if (!isSidebarCollapsed()) {
+          <div class="brand-text">
+            <span class="brand-title">SmartClass</span>
+            <span class="brand-badge">PRO</span>
+          </div>
+        }
+      </a>
+      <button
+        type="button"
+        class="sidebar-toggle-btn hide-mobile"
+        (click)="toggleSidebar()"
+        [title]="isSidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      >
+        <app-icon [name]="isSidebarCollapsed() ? 'chevron-right' : 'chevron-left'" [size]="16"></app-icon>
+      </button>
+    </div>
+
+    <!-- Active Class Mini Card in Sidebar (If in session) -->
+    @if (!isSidebarCollapsed() && authService.userRole() !== 'admin') {
+      <div class="sidebar-class-badge" [class.badge-offline]="!classroomService.activeClassroom().isLive">
+        <div class="class-badge-header">
+          <span class="live-dot" [class.animate-pulse]="classroomService.activeClassroom().isLive" [style.background-color]="classroomService.activeClassroom().isLive ? 'var(--accent-rose)' : 'var(--slate-400)'"></span>
+          <span class="class-badge-label" [style.color]="classroomService.activeClassroom().isLive ? 'var(--accent-rose)' : 'var(--slate-500)'">
+            {{ classroomService.activeClassroom().isLive ? 'Live In Session' : 'Classroom Offline' }}
+          </span>
+        </div>
+        <div class="class-badge-code">PIN: <strong>{{ classroomService.activeClassroom().roomCode }}</strong></div>
+        <div class="class-badge-name">{{ classroomService.activeClassroom().name }} ({{ classroomService.activeClassroom().courseCode }})</div>
+      </div>
+    }
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-title" *ngIf="!isSidebarCollapsed()">MENU</div>
+      <ul class="nav-list">
+        @for (item of getNavItems(); track item.route) {
+          <li class="nav-item">
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              (click)="closeMobileSidebar()"
+              class="nav-link"
+              [title]="item.label"
+            >
+              <div class="nav-icon">
+                <app-icon [name]="item.icon" [size]="20"></app-icon>
+              </div>
+              @if (!isSidebarCollapsed()) {
+                <span class="nav-label">{{ item.label }}</span>
+                @if (item.badge) {
+                  <span class="badge nav-badge" [ngClass]="item.badgeClass || 'badge-indigo'">
+                    {{ item.badge }}
+                  </span>
+                }
+              }
+            </a>
+          </li>
+        }
+      </ul>
+
+    </nav>
+
+    <!-- User Profile Footer -->
+    <div class="sidebar-footer">
+      <div class="user-mini-card" (click)="openProfileModal()">
+        <img
+          [src]="authService.currentUser()?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'"
+          [alt]="authService.currentUser()?.name || 'User'"
+          class="user-avatar"
+        />
+        @if (!isSidebarCollapsed()) {
+          <div class="user-details">
+            <div class="user-name">{{ authService.currentUser()?.name }}</div>
+            <div class="user-role">{{ authService.currentUser()?.role | uppercase }}</div>
+          </div>
+          <button
+            type="button"
+            class="logout-icon-btn"
+            (click)="logout(); $event.stopPropagation()"
+            title="Log Out"
+          >
+            <app-icon name="log-out" [size]="18"></app-icon>
+          </button>
+        }
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main App Shell -->
+  <div class="main-shell">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button
+          type="button"
+          class="mobile-menu-btn hide-desktop"
+          (click)="toggleMobileSidebar()"
+          aria-label="Open navigation menu"
+        >
+          <app-icon name="layout-dashboard" [size]="22"></app-icon>
+        </button>
+
+        <div class="search-box hide-mobile">
+          <app-icon name="search" [size]="16" customClass="search-icon"></app-icon>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search polls, quizzes, students, topics..."
+          />
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <!-- Single Unified Light / Dark Theme Button -->
+        <button
+          type="button"
+          class="topbar-action-btn theme-toggle-btn"
+          (click)="themeService.toggleDarkMode()"
+          [title]="themeService.mode() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+        >
+          <app-icon [name]="themeService.mode() === 'dark' ? 'sun' : 'moon'" [size]="19"></app-icon>
+        </button>
+
+        <!-- Notification Bell Dropdown -->
+        <div class="dropdown-container">
+          <button
+            type="button"
+            class="topbar-action-btn"
+            (click)="toggleNotifications()"
+            aria-label="View notifications"
+          >
+            <app-icon name="bell" [size]="19"></app-icon>
+            <span class="notification-badge-dot"></span>
+          </button>
+
+          @if (isNotificationOpen()) {
+            <div class="dropdown-menu notifications-menu">
+              <div class="dropdown-header">
+                <span class="dropdown-title">Live Notifications</span>
+                <span class="badge badge-indigo">Real-Time</span>
+              </div>
+              <div class="dropdown-list">
+                @for (item of classroomService.activityFeed().slice(0, 4); track item.id) {
+                  <div class="notification-row">
+                    <div class="notif-indicator" [ngClass]="'indicator-' + (item.badgeType || 'primary')"></div>
+                    <div class="notif-content">
+                      <p class="notif-text">{{ item.message }}</p>
+                      <span class="notif-time">{{ item.timestamp }}</span>
+                    </div>
+                  </div>
+                } @empty {
+                  <div style="padding: 1rem; text-align: center; color: var(--slate-400); font-size: 0.8125rem;">
+                    No new notifications
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- User Profile Pill -->
+        <div class="dropdown-container">
+          <div class="user-pill hide-mobile" (click)="toggleProfileDropdown()" title="Click for profile menu">
+            <img
+              [src]="authService.currentUser()?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'"
+              [alt]="authService.currentUser()?.name || 'User'"
+              class="topbar-avatar"
+            />
+            <div class="topbar-user-text">
+              <span class="topbar-name">{{ authService.currentUser()?.name }}</span>
+              <span class="topbar-dept">{{ authService.currentUser()?.role | titlecase }}</span>
+            </div>
+          </div>
+
+          @if (isProfileDropdownOpen()) {
+            <div class="dropdown-menu profile-dropdown-menu">
+              <div class="profile-dropdown-header">
+                <img
+                  [src]="authService.currentUser()?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'"
+                  [alt]="authService.currentUser()?.name || 'User'"
+                  class="dropdown-avatar"
+                />
+                <div class="dropdown-user-info">
+                  <span class="dropdown-name">{{ authService.currentUser()?.name }}</span>
+                  <span class="dropdown-email">{{ authService.currentUser()?.email }}</span>
+                </div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <button type="button" class="profile-menu-item" (click)="openProfileModal()">
+                <app-icon name="camera" [size]="16"></app-icon>
+                <span>Edit Profile & Photo</span>
+              </button>
+              <button type="button" class="profile-menu-item text-danger" (click)="logout()">
+                <app-icon name="log-out" [size]="16"></app-icon>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content View Outlet -->
+    <main class="content-area">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+
+<!-- Profile & Photo Customization Modal -->
+<app-profile-modal
+  [isOpen]="isProfileModalOpen()"
+  (closeEvent)="closeProfileModal()"
+></app-profile-modal>

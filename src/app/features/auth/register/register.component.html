@@ -1,0 +1,119 @@
+<div class="register-box">
+  <div class="register-header">
+    <h2 class="register-title">Create SmartClass Account</h2>
+    <p class="register-subtitle">Join thousands of educators and students today</p>
+  </div>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+    <!-- Full Name -->
+    <div class="form-group">
+      <label class="form-label form-label-required">Full Name</label>
+      <input
+        type="text"
+        formControlName="name"
+        class="form-control"
+        placeholder="e.g. Alex Johnson"
+        [class.is-invalid]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
+      />
+      @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
+        <div class="form-error">
+          <app-icon name="alert-circle" [size]="13"></app-icon>
+          Full name is required (min 3 characters)
+        </div>
+      }
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label class="form-label form-label-required">Institutional Email</label>
+      <input
+        type="email"
+        formControlName="email"
+        class="form-control"
+        placeholder="e.g. alex.j@university.edu"
+        [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+      />
+      @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+        <div class="form-error">
+          <app-icon name="alert-circle" [size]="13"></app-icon>
+          Please enter a valid academic email address
+        </div>
+      }
+    </div>
+
+    <!-- Role Selection & Institution Grid -->
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label class="form-label form-label-required">Role</label>
+        <select formControlName="role" class="form-control form-select">
+          <option value="teacher">Teacher / Professor</option>
+          <option value="student">Student</option>
+        </select>
+      </div>
+
+      <div class="form-group flex-1">
+        <label class="form-label form-label-required">Institution</label>
+        <input
+          type="text"
+          formControlName="institution"
+          class="form-control"
+          placeholder="e.g. NIT University"
+        />
+      </div>
+    </div>
+
+    <!-- Password & Confirm Password Grid -->
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label class="form-label form-label-required">Password</label>
+        <input
+          type="password"
+          formControlName="password"
+          class="form-control"
+          placeholder="••••••••••••"
+          [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+        />
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <div class="form-error">
+            <app-icon name="alert-circle" [size]="13"></app-icon>
+            Min 6 characters
+          </div>
+        }
+      </div>
+
+      <div class="form-group flex-1">
+        <label class="form-label form-label-required">Confirm Password</label>
+        <input
+          type="password"
+          formControlName="confirmPassword"
+          class="form-control"
+          placeholder="••••••••••••"
+          [class.is-invalid]="(registerForm.get('confirmPassword')?.invalid || registerForm.errors?.['passwordMismatch']) && registerForm.get('confirmPassword')?.touched"
+        />
+        @if (registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched) {
+          <div class="form-error">
+            <app-icon name="alert-circle" [size]="13"></app-icon>
+            Passwords do not match
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="form-options">
+      <label class="checkbox-label">
+        <input type="checkbox" formControlName="agreeTerms" class="custom-checkbox" />
+        <span>I agree to the SmartClass Terms of Service & Privacy Policy</span>
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-full btn-lg">
+      <app-icon name="sparkles" [size]="18"></app-icon>
+      Create Account
+    </button>
+  </form>
+
+  <div class="signup-prompt">
+    <span>Already registered?</span>
+    <a routerLink="/login" class="signup-link">Sign In</a>
+  </div>
+</div>

@@ -1,0 +1,118 @@
+<div class="quiz-result-container" *ngIf="submission && quiz">
+  <!-- Top Score Banner -->
+  <div class="result-hero-banner">
+    <div class="badge-grade">Grade: A+</div>
+    <h1 class="result-headline">
+      {{ submission.percentage >= 80 ? 'Outstanding Work!' : 'Assessment Completed' }}
+    </h1>
+    <p class="result-sub">
+      You completed <strong>{{ quiz.title }}</strong> in {{ formatTime(submission.timeTakenSeconds) }}.
+    </p>
+
+    <!-- 4 Stats Counters -->
+    <div class="result-score-counters">
+      <div class="counter-box">
+        <span class="c-label">FINAL SCORE</span>
+        <span class="c-val text-indigo">{{ submission.score }} / {{ submission.totalMarks }}</span>
+      </div>
+      <div class="counter-box">
+        <span class="c-label">PERCENTAGE</span>
+        <span class="c-val text-emerald">{{ submission.percentage }}%</span>
+      </div>
+      <div class="counter-box">
+        <span class="c-label">ACCURACY</span>
+        <span class="c-val">{{ submission.correctAnswersCount }} / {{ quiz.questions.length }}</span>
+      </div>
+      <div class="counter-box">
+        <span class="c-label">TIME SPENT</span>
+        <span class="c-val">{{ formatTime(submission.timeTakenSeconds) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Performance Summary & Chart -->
+  <div class="card result-chart-card">
+    <div class="card-header">
+      <h3 class="card-title">Performance Diagnostic Distribution</h3>
+      <span class="badge badge-active">{{ submission.correctAnswersCount }} Correct Answers</span>
+    </div>
+    <div class="card-body">
+      <div class="donut-chart-wrap">
+        <app-chart
+          type="doughnut"
+          [data]="donutData"
+          [options]="donutOptions"
+          height="220px"
+        ></app-chart>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Question-by-Question Review Section -->
+  <div class="card review-card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">Question Breakdown & Solutions</h3>
+        <p class="card-subtitle">Review your answers against the verified answer keys</p>
+      </div>
+    </div>
+
+    <div class="card-body review-list">
+      @for (ans of submission.answers; track ans.questionId; let i = $index) {
+        <div class="review-item" [class.review-correct]="ans.isCorrect" [class.review-incorrect]="!ans.isCorrect">
+          <div class="review-item-header">
+            <div class="review-q-tag">
+              <span class="q-badge">Question {{ i + 1 }}</span>
+              <span class="marks-tag">+{{ ans.marksAwarded }} Marks</span>
+            </div>
+            <span
+              class="badge"
+              [ngClass]="ans.isCorrect ? 'badge-active' : 'badge-live'"
+            >
+              <app-icon [name]="ans.isCorrect ? 'check' : 'x'" [size]="12"></app-icon>
+              {{ ans.isCorrect ? 'Correct' : 'Incorrect' }}
+            </span>
+          </div>
+
+          <div class="review-q-text">
+            {{ quiz.questions[i]?.questionText }}
+          </div>
+
+          <div class="review-answers-grid">
+            <div class="answer-box student-choice" [class.is-correct]="ans.isCorrect">
+              <span class="ans-label">Your Submitted Answer:</span>
+              <span class="ans-text">{{ getOptionText(ans.questionId, ans.selectedOptionId) }}</span>
+            </div>
+
+            @if (!ans.isCorrect) {
+              <div class="answer-box correct-key">
+                <span class="ans-label">Correct Solution:</span>
+                <span class="ans-text">{{ getOptionText(ans.questionId, quiz.questions[i]?.correctOptionId || '') }}</span>
+              </div>
+            }
+          </div>
+
+          @if (quiz.questions[i]?.explanation) {
+            <div class="explanation-box">
+              <app-icon name="info" [size]="16" customClass="text-indigo"></app-icon>
+              <div class="exp-content">
+                <strong>Explanation:</strong>
+                <span>{{ quiz.questions[i]?.explanation }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="card-footer" style="display: flex; justify-content: space-between;">
+      <a routerLink="/student/dashboard" class="btn btn-secondary">
+        <app-icon name="arrow-left" [size]="14"></app-icon>
+        Return to Dashboard
+      </a>
+      <a routerLink="/student/live-poll" class="btn btn-primary">
+        Back to Live Classroom
+      </a>
+    </div>
+  </div>
+</div>

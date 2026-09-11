@@ -1,0 +1,81 @@
+<app-modal
+  [isOpen]="isOpen"
+  title="Profile & Account Settings"
+  subtitle="Customize your photo, display information, and account preferences"
+  maxWidth="540px"
+  (closeEvent)="close()"
+>
+  <div modal-body class="profile-modal-body">
+    <!-- Avatar Section -->
+    <div class="avatar-section">
+      <div class="current-avatar-container">
+        <img [src]="editAvatarUrl" [alt]="editName" class="modal-profile-avatar" />
+        <label class="btn-upload-overlay" title="Upload local image">
+          <app-icon name="camera" [size]="16"></app-icon>
+          <input type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input-hidden" />
+        </label>
+      </div>
+
+      <div class="avatar-actions">
+        <label class="btn btn-secondary btn-sm upload-btn-label">
+          <app-icon name="plus" [size]="14"></app-icon>
+          Upload Photo
+          <input type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input-hidden" />
+        </label>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="generateInitialsAvatar()">
+          Generate Initials
+        </button>
+      </div>
+    </div>
+
+    <!-- Avatar Presets -->
+    <div class="avatar-presets-group">
+      <span class="presets-label">Choose Avatar Style:</span>
+      <div class="presets-row">
+        @for (preset of avatarPresets; track preset) {
+          <img
+            [src]="preset"
+            alt="Preset"
+            class="preset-thumb"
+            [class.preset-selected]="editAvatarUrl === preset"
+            (click)="selectPreset(preset)"
+          />
+        }
+      </div>
+    </div>
+
+    <hr class="modal-divider" />
+
+    <!-- Details Form -->
+    <div class="form-group">
+      <label class="form-label form-label-required">Full Name</label>
+      <input type="text" [(ngModel)]="editName" class="form-control" placeholder="Your Name" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email Address (Read-only)</label>
+      <input type="email" [value]="editEmail" disabled class="form-control text-muted" style="opacity: 0.75;" />
+    </div>
+
+    <div class="form-row" style="display: flex; gap: 0.75rem;">
+      <div class="form-group flex-1">
+        <label class="form-label">Institution / Campus</label>
+        <input type="text" [(ngModel)]="editInstitution" class="form-control" placeholder="e.g. University Campus" />
+      </div>
+
+      <div class="form-group flex-1">
+        <label class="form-label">Department / Major</label>
+        <input type="text" [(ngModel)]="editDepartment" class="form-control" placeholder="e.g. Computer Science" />
+      </div>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-secondary btn-sm" (click)="close()">
+      Cancel
+    </button>
+    <button type="button" class="btn btn-primary btn-sm" (click)="saveProfile()">
+      Save Profile
+    </button>
+  </div>
+</app-modal>

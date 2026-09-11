@@ -1,0 +1,119 @@
+.history-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--slate-900);
+  letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  margin-top: 0.25rem;
+}
+
+.history-row {
+  cursor: pointer;
+}
+
+.session-title-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.session-num {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--primary-600);
+  background-color: var(--primary-50);
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-sm);
+}
+
+.session-title-text {
+  font-weight: 700;
+  color: var(--slate-900);
+}
+
+.session-breakdown-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.session-kpis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.875rem;
+}
+
+.kpi-mini-card {
+  padding: 0.875rem 1rem;
+  background-color: var(--slate-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-lbl {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--slate-400);
+  letter-spacing: 0.05em;
+}
+
+.kpi-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--slate-900);
+  margin-top: 0.25rem;
+}
+
+.session-summary-box {
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+.summary-lbl {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--slate-800);
+  margin-bottom: 0.35rem;
+}
+
+.summary-p {
+  font-size: 0.875rem;
+  color: var(--slate-600);
+  line-height: 1.45;
+}
+
+.session-logs-box {
+  background-color: var(--slate-50);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+.highlights-list {
+  padding-left: 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--slate-600);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}

@@ -1,0 +1,126 @@
+<div class="login-box">
+  <div class="login-header">
+    <h2 class="login-title">Sign in to SmartClass</h2>
+    <p class="login-subtitle">Choose your portal and sign in to continue</p>
+  </div>
+
+  <!-- Role Selector Tabs -->
+  <div class="role-selector-tabs">
+    <button
+      type="button"
+      class="role-tab-btn"
+      [class.active]="selectedRole === 'teacher'"
+      (click)="setRole('teacher')"
+    >
+      <app-icon name="graduation-cap" [size]="16"></app-icon>
+      <span>Teacher</span>
+    </button>
+    <button
+      type="button"
+      class="role-tab-btn"
+      [class.active]="selectedRole === 'student'"
+      (click)="setRole('student')"
+    >
+      <app-icon name="user" [size]="16"></app-icon>
+      <span>Student</span>
+    </button>
+    <button
+      type="button"
+      class="role-tab-btn"
+      [class.active]="selectedRole === 'admin'"
+      (click)="setRole('admin')"
+    >
+      <app-icon name="shield" [size]="16"></app-icon>
+      <span>Admin</span>
+    </button>
+  </div>
+
+  <!-- Main Login Form -->
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+    <div class="form-group">
+      <label class="form-label form-label-required">Institutional Email</label>
+      <div class="input-with-icon">
+        <input
+          type="email"
+          formControlName="email"
+          class="form-control"
+          placeholder="e.g. name@university.edu"
+          [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+        />
+      </div>
+      @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+        <div class="form-error">
+          <app-icon name="alert-circle" [size]="13"></app-icon>
+          Please enter a valid email address
+        </div>
+      }
+    </div>
+
+    <div class="form-group">
+      <div class="label-row">
+        <label class="form-label form-label-required">Password</label>
+        <a (click)="openForgotPassword()" class="forgot-link">Forgot password?</a>
+      </div>
+      <input
+        type="password"
+        formControlName="password"
+        class="form-control"
+        placeholder="••••••••••••"
+        [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+      />
+      @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+        <div class="form-error">
+          <app-icon name="alert-circle" [size]="13"></app-icon>
+          Password is required (min 6 chars)
+        </div>
+      }
+    </div>
+
+    <div class="form-options">
+      <label class="checkbox-label">
+        <input type="checkbox" formControlName="rememberMe" class="custom-checkbox" />
+        <span>Remember my session for 30 days</span>
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-full btn-lg">
+      <app-icon name="log-out" [size]="18" [customClass]="'rotate-180'"></app-icon>
+      Sign In as {{ selectedRole | titlecase }}
+    </button>
+  </form>
+
+
+  <div class="signup-prompt">
+    <span>Don't have an account yet?</span>
+    <a routerLink="/register" class="signup-link">Create Account</a>
+  </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<app-modal
+  [isOpen]="isForgotPasswordOpen"
+  title="Reset Account Password"
+  subtitle="Enter your verified university email to receive a password recovery link."
+  maxWidth="460px"
+  (closeEvent)="closeForgotPassword()"
+>
+  <div modal-body>
+    <div class="form-group">
+      <label class="form-label form-label-required">Institutional Email</label>
+      <input
+        type="email"
+        [(ngModel)]="forgotEmail"
+        class="form-control"
+        placeholder="e.g. yourname@university.edu"
+      />
+    </div>
+  </div>
+  <div modal-footer>
+    <button type="button" class="btn btn-secondary btn-sm" (click)="closeForgotPassword()">
+      Cancel
+    </button>
+    <button type="button" class="btn btn-primary btn-sm" (click)="submitForgotPassword()">
+      Send Reset Link
+    </button>
+  </div>
+</app-modal>

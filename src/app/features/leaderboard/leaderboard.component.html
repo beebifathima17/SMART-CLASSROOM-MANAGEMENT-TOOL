@@ -1,0 +1,137 @@
+<div class="leaderboard-container">
+  <!-- Top Header -->
+  <div class="page-header">
+    <div>
+      <div class="header-pill">
+        <span class="live-dot-pulse"></span>
+        <span>REAL-TIME ENGAGEMENT RANKINGS</span>
+      </div>
+      <h1 class="page-title">Classroom Leaderboard & Honor Roll</h1>
+      <p class="page-subtitle">
+        {{ classroomService.activeClassroom().name }} ({{ classroomService.activeClassroom().courseCode }}) • Live Rankings
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <a [routerLink]="authService.userRole() === 'teacher' ? '/teacher/live-classroom' : '/student/live-poll'" class="btn btn-primary btn-sm">
+        <app-icon name="radio" [size]="14"></app-icon>
+        Back to Live Session
+      </a>
+    </div>
+  </div>
+
+  @if (leaderboardEntries.length > 0) {
+    <!-- Top 3 Podium Cards -->
+    <div class="podium-grid">
+      <!-- 2nd Place -->
+      @if (topThree.length >= 2) {
+        <div class="podium-card rank-2">
+          <div class="rank-crown">🥈 2nd Place</div>
+          <img [src]="topThree[1].avatarUrl" [alt]="topThree[1].name" class="podium-avatar" />
+          <h3 class="podium-name">{{ topThree[1].name }}</h3>
+          <div class="podium-score">{{ topThree[1].totalPoints }} <span class="pts-label">PTS</span></div>
+          <span class="badge" [ngClass]="topThree[1].badgeColor">{{ topThree[1].badge }}</span>
+        </div>
+      }
+
+      <!-- 1st Place (Center & Highest) -->
+      @if (topThree.length >= 1) {
+        <div class="podium-card rank-1">
+          <div class="rank-crown gold-crown">🥇 1st Place Champion</div>
+          <img [src]="topThree[0].avatarUrl" [alt]="topThree[0].name" class="podium-avatar gold-border" />
+          <h3 class="podium-name font-bold">{{ topThree[0].name }}</h3>
+          <div class="podium-score text-gold">{{ topThree[0].totalPoints }} <span class="pts-label">PTS</span></div>
+          <span class="badge badge-active">{{ topThree[0].badge }}</span>
+        </div>
+      }
+
+      <!-- 3rd Place -->
+      @if (topThree.length >= 3) {
+        <div class="podium-card rank-3">
+          <div class="rank-crown">🥉 3rd Place</div>
+          <img [src]="topThree[2].avatarUrl" [alt]="topThree[2].name" class="podium-avatar" />
+          <h3 class="podium-name">{{ topThree[2].name }}</h3>
+          <div class="podium-score">{{ topThree[2].totalPoints }} <span class="pts-label">PTS</span></div>
+          <span class="badge" [ngClass]="topThree[2].badgeColor">{{ topThree[2].badge }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Full Leaderboard Table -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Full Classroom Standings</h3>
+      </div>
+      <div class="table-container" style="border: none; border-radius: 0;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width: 70px;">Rank</th>
+              <th>Student</th>
+              <th>Total Points</th>
+              <th>Quiz Average</th>
+              <th>Poll Responses</th>
+              <th>Badge</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of leaderboardEntries; track entry.id) {
+              <tr [class.highlight-row]="entry.email === authService.currentUser()?.email">
+                <td>
+                  <span
+                    class="rank-number-badge"
+                    [ngClass]="{
+                      'rank-gold': entry.rank === 1,
+                      'rank-silver': entry.rank === 2,
+                      'rank-bronze': entry.rank === 3
+                    }"
+                  >
+                    #{{ entry.rank }}
+                  </span>
+                </td>
+                <td>
+                  <div class="student-table-cell">
+                    <img [src]="entry.avatarUrl" [alt]="entry.name" class="table-avatar" />
+                    <div>
+                      <span class="entry-name-txt">{{ entry.name }}</span>
+                      <span class="entry-email-txt">{{ entry.email }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <strong class="text-indigo font-bold" style="font-size: 1rem;">{{ entry.totalPoints }}</strong> pts
+                </td>
+                <td>
+                  <span class="font-bold">{{ entry.quizScore }}%</span>
+                </td>
+                <td>
+                  <span>{{ entry.pollsAnswered }} submitted</span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="entry.badgeColor">
+                    {{ entry.badge }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else {
+    <!-- Empty State -->
+    <div class="card empty-leaderboard-card">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🏆</div>
+      <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--slate-900); margin-bottom: 0.5rem;">
+        No Leaderboard Activity Recorded Yet
+      </h3>
+      <p style="font-size: 0.875rem; color: var(--slate-500); max-width: 440px; margin: 0 auto 1.5rem;">
+        Students will be ranked here in real time as they connect to the room, submit live poll responses, and complete quizzes.
+      </p>
+      <a [routerLink]="authService.userRole() === 'teacher' ? '/teacher/live-classroom' : '/student/join'" class="btn btn-primary">
+        <app-icon name="radio" [size]="16"></app-icon>
+        {{ authService.userRole() === 'teacher' ? 'Open Live Classroom' : 'Join Classroom' }}
+      </a>
+    </div>
+  }
+</div>

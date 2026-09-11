@@ -1,0 +1,229 @@
+<div class="analytics-page-wrapper">
+  <!-- Page Header -->
+  <div class="analytics-top-header">
+    <div>
+      <h1 class="page-title">Classroom Engagement & Performance Analytics</h1>
+      <p class="page-subtitle">
+        {{ classroomService.activeClassroom().name }} ({{ classroomService.activeClassroom().courseCode }}) • Real-time Session Intelligence
+      </p>
+    </div>
+
+    <!-- Filter & Export Action Toolbar -->
+    <div class="analytics-toolbar">
+      <div class="filter-btn-group">
+        <button
+          type="button"
+          class="filter-tab"
+          [class.tab-active]="activeTimeFilter === 'today'"
+          (click)="setTimeFilter('today')"
+        >
+          Today
+        </button>
+        <button
+          type="button"
+          class="filter-tab"
+          [class.tab-active]="activeTimeFilter === 'week'"
+          (click)="setTimeFilter('week')"
+        >
+          This Week
+        </button>
+        <button
+          type="button"
+          class="filter-tab"
+          [class.tab-active]="activeTimeFilter === 'month'"
+          (click)="setTimeFilter('month')"
+        >
+          All Time
+        </button>
+      </div>
+
+      <div class="export-actions">
+        <button type="button" class="btn btn-secondary btn-sm" (click)="exportCSV()">
+          <app-icon name="download" [size]="14"></app-icon>
+          Export CSV
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" (click)="exportReport()">
+          <app-icon name="bar-chart-3" [size]="14"></app-icon>
+          Print / PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 Big Real Stats Cards -->
+  <div class="stats-grid">
+    <app-stat-card
+      title="Active Classrooms"
+      [value]="classroomService.classrooms().length + ' Rooms'"
+      [subtext]="'Current: ' + classroomService.activeClassroom().courseCode"
+      icon="radio"
+      iconColorClass="icon-indigo"
+      delta="Live"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Enrolled Students"
+      [value]="classroomService.liveStudents().length + ' Students'"
+      subtext="Connected in active roster"
+      icon="users"
+      iconColorClass="icon-purple"
+      delta="Real Count"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Total Poll Responses"
+      [value]="totalPollResponses + ' Votes'"
+      [subtext]="'Across ' + pollService.polls().length + ' created polls'"
+      icon="poll"
+      iconColorClass="icon-emerald"
+      delta="Live Feedback"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Average Quiz Score"
+      [value]="realAverageScore + '%'"
+      [subtext]="quizService.quizzes().length + ' Published Assessments'"
+      icon="quiz"
+      iconColorClass="icon-amber"
+      delta="Auto-Graded"
+      [deltaPositive]="true"
+    ></app-stat-card>
+  </div>
+
+  <!-- Dynamic Real Charts Matrix -->
+  <div class="charts-matrix-grid">
+    <!-- Chart 1: Real Quiz Performance Breakdown -->
+    <div class="card chart-box">
+      <div class="card-header">
+        <div>
+          <h3 class="card-title">Quiz Performance by Assessment</h3>
+          <p class="card-subtitle">Real average scores across published quizzes</p>
+        </div>
+        <span class="badge badge-indigo">{{ quizService.quizzes().length }} Quizzes</span>
+      </div>
+      <div class="card-body">
+        @if (quizService.quizzes().length > 0) {
+          <app-chart
+            type="bar"
+            [data]="quizPerformanceChartData"
+            [options]="commonChartOptions"
+            height="240px"
+          ></app-chart>
+        } @else {
+          <div class="empty-chart-notice">
+            <app-icon name="quiz" [size]="28" customClass="text-slate-400"></app-icon>
+            <p>No quizzes published yet. Create a quiz to view student performance trends.</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Chart 2: Real Poll Types & Responses Breakdown -->
+    <div class="card chart-box">
+      <div class="card-header">
+        <div>
+          <h3 class="card-title">Poll Response Breakdown</h3>
+          <p class="card-subtitle">Distribution of votes across poll types</p>
+        </div>
+        <span class="badge badge-indigo">{{ pollService.polls().length }} Polls</span>
+      </div>
+      <div class="card-body">
+        @if (pollService.polls().length > 0) {
+          <app-chart
+            type="doughnut"
+            [data]="pollTypeChartData"
+            height="240px"
+          ></app-chart>
+        } @else {
+          <div class="empty-chart-notice">
+            <app-icon name="poll" [size]="28" customClass="text-slate-400"></app-icon>
+            <p>No polls launched yet. Launch an instant pulse to track engagement.</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Participation Ledger Table -->
+  <div class="card ledger-card">
+    <div class="card-header ledger-header">
+      <div>
+        <h3 class="card-title">Real-Time Student Participation Ledger</h3>
+        <p class="card-subtitle">Individual attendance records, poll responses, and quiz scores</p>
+      </div>
+
+      <div class="ledger-search-box">
+        <app-icon name="search" [size]="15" customClass="text-slate-400"></app-icon>
+        <input
+          type="text"
+          [(ngModel)]="studentSearch"
+          placeholder="Filter by student name..."
+          class="ledger-search-input"
+        />
+      </div>
+    </div>
+
+    <div class="table-container" style="border: none; border-radius: 0;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Sessions Joined</th>
+            <th>Polls Answered</th>
+            <th>Quiz Average</th>
+            <th>Participation</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (student of filteredStudentRoster; track student.id) {
+            <tr (click)="openStudentModal(student)" style="cursor: pointer;">
+              <td>
+                <div class="student-cell">
+                  <img [src]="student.avatarUrl" [alt]="student.name" class="ledger-avatar" />
+                  <div>
+                    <span class="font-bold text-slate-900 block">{{ student.name }}</span>
+                    <span class="text-xs text-slate-400">{{ student.email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td><strong>{{ student.sessionsAttended || 1 }}</strong> session(s)</td>
+              <td>{{ student.pollsAnswered || 0 }} votes</td>
+              <td>
+                <span class="badge badge-active font-bold">
+                  {{ student.quizAverage || 0 }}%
+                </span>
+              </td>
+              <td>
+                <span class="font-bold text-indigo">{{ student.participationPercentage || 100 }}%</span>
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="student.status === 'active' || student.status === 'answered' ? 'badge-active' : 'badge-draft'"
+                >
+                  {{ student.status.replace('_', ' ') | titlecase }}
+                </span>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: var(--slate-400);">
+                No student records found. Students admitted to this classroom will automatically appear in this ledger.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Student Detail Modal -->
+<app-student-detail-modal
+  [student]="selectedStudent"
+  (closeEvent)="closeStudentModal()"
+></app-student-detail-modal>

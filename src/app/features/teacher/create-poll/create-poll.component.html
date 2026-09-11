@@ -1,0 +1,203 @@
+<div class="create-poll-container">
+  <!-- Top Breadcrumb Header -->
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb-trail">
+        <a routerLink="/teacher/dashboard">Dashboard</a>
+        <app-icon name="chevron-right" [size]="12"></app-icon>
+        <span>Poll Builder</span>
+      </div>
+      <h1 class="page-title">Create Live Classroom Poll</h1>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" (click)="submitPoll(false)" class="btn btn-secondary">
+        Save as Draft
+      </button>
+      <button type="button" (click)="submitPoll(true)" class="btn btn-primary">
+        <app-icon name="radio" [size]="16"></app-icon>
+        Launch Poll Live
+      </button>
+    </div>
+  </div>
+
+  <div class="builder-split-grid">
+    <!-- Left Column: Poll Form -->
+    <div class="builder-form-col">
+      <form [formGroup]="pollForm" class="card form-card">
+        <div class="card-body">
+          <!-- Step 1: Poll Type Selector -->
+          <div class="form-group">
+            <label class="form-label form-label-required">Select Poll Type</label>
+            <div class="poll-types-grid">
+              @for (item of pollTypes; track item.value) {
+                <div
+                  class="poll-type-tile"
+                  [class.tile-selected]="pollForm.get('type')?.value === item.value"
+                  (click)="onTypeChange(item.value)"
+                >
+                  <div class="tile-icon">
+                    <app-icon [name]="item.icon" [size]="20"></app-icon>
+                  </div>
+                  <div class="tile-content">
+                    <span class="tile-label">{{ item.label }}</span>
+                    <span class="tile-desc">{{ item.desc }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Step 2: Title & Question -->
+          <div class="form-group">
+            <label class="form-label form-label-required">Poll Title</label>
+            <input
+              type="text"
+              formControlName="title"
+              class="form-control"
+              placeholder="e.g. Concept Checkpoint: Angular Signals"
+              [class.is-invalid]="pollForm.get('title')?.invalid && pollForm.get('title')?.touched"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">Poll Question</label>
+            <textarea
+              formControlName="question"
+              rows="3"
+              class="form-control"
+              placeholder="What question would you like to ask your students?"
+              [class.is-invalid]="pollForm.get('question')?.invalid && pollForm.get('question')?.touched"
+            ></textarea>
+          </div>
+
+          <!-- Step 3: Dynamic Options Builder (for Multiple Choice) -->
+          @if (pollForm.get('type')?.value === 'multiple_choice') {
+            <div class="form-group">
+              <div class="options-header">
+                <label class="form-label form-label-required">Answer Options</label>
+                <button
+                  type="button"
+                  (click)="addOption()"
+                  class="btn btn-outline btn-sm"
+                >
+                  <app-icon name="plus" [size]="14"></app-icon>
+                  Add Option
+                </button>
+              </div>
+
+              <div formArrayName="options" class="options-inputs-list">
+                @for (optCtrl of optionsArray.controls; track $index) {
+                  <div class="option-input-row">
+                    <span class="option-index-badge">{{ $index + 1 }}</span>
+                    <input
+                      type="text"
+                      [formControlName]="$index"
+                      class="form-control"
+                      placeholder="Option text..."
+                    />
+                    <button
+                      type="button"
+                      (click)="removeOption($index)"
+                      class="option-remove-btn"
+                      [disabled]="optionsArray.length <= 2"
+                      title="Remove option"
+                    >
+                      <app-icon name="trash-2" [size]="16"></app-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Step 4: Settings & Rules -->
+          <div class="settings-box">
+            <h4 class="settings-heading">Poll Settings</h4>
+
+            <div class="settings-grid">
+              <div class="form-group mb-2">
+                <label class="form-label">Time Limit</label>
+                <select formControlName="timeLimitSeconds" class="form-control form-select">
+                  <option [value]="30">30 Seconds</option>
+                  <option [value]="60">60 Seconds (1 min)</option>
+                  <option [value]="90">90 Seconds (1.5 mins)</option>
+                  <option [value]="120">120 Seconds (2 mins)</option>
+                  <option [value]="0">No Time Limit</option>
+                </select>
+              </div>
+
+              <div class="checkboxes-stack">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="allowMultipleAnswers" class="custom-checkbox" />
+                  <span>Allow selecting multiple options</span>
+                </label>
+
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="isAnonymous" class="custom-checkbox" />
+                  <span>Anonymous responses (hide student names)</span>
+                </label>
+
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="showResultsToStudents" class="custom-checkbox" />
+                  <span>Display live chart results to students after submit</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right Column: Live Student Screen Preview -->
+    <div class="builder-preview-col">
+      <div class="preview-sticky-wrap">
+        <div class="phone-frame">
+          <div class="phone-speaker"></div>
+          <div class="phone-screen">
+            <div class="preview-header">
+              <span class="preview-badge">STUDENT LIVE PREVIEW</span>
+              <span class="preview-timer">
+                <app-icon name="clock" [size]="12"></app-icon>
+                {{ pollForm.get('timeLimitSeconds')?.value ? pollForm.get('timeLimitSeconds')?.value + 's' : '∞' }}
+              </span>
+            </div>
+
+            <div class="preview-content">
+              <div class="preview-course-tag">Web Technologies (WT301)</div>
+              <h3 class="preview-q-text">
+                {{ pollForm.get('question')?.value || 'Enter a question...' }}
+              </h3>
+
+              <div class="preview-options">
+                @if (pollForm.get('type')?.value === 'multiple_choice') {
+                  @for (opt of pollForm.get('options')?.value; track $index) {
+                    <div class="mock-option-btn">
+                      <span class="mock-bullet"></span>
+                      <span>{{ opt || 'Option ' + ($index + 1) }}</span>
+                    </div>
+                  }
+                } @else if (pollForm.get('type')?.value === 'yes_no') {
+                  <div class="mock-option-btn"><span>Yes, totally clear</span></div>
+                  <div class="mock-option-btn"><span>No, need explanation</span></div>
+                } @else if (pollForm.get('type')?.value === 'rating') {
+                  <div class="star-rating-mock">
+                    <app-icon name="star" [size]="24" customClass="text-amber"></app-icon>
+                    <app-icon name="star" [size]="24" customClass="text-amber"></app-icon>
+                    <app-icon name="star" [size]="24" customClass="text-amber"></app-icon>
+                    <app-icon name="star" [size]="24" customClass="text-amber"></app-icon>
+                    <app-icon name="star" [size]="24" customClass="text-amber"></app-icon>
+                  </div>
+                } @else {
+                  <div class="mock-textarea">Student types thoughts here...</div>
+                }
+              </div>
+
+              <div class="mock-submit-btn">Submit Answer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

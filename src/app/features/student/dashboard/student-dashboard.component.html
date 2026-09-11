@@ -1,0 +1,156 @@
+<div class="student-dashboard-wrapper">
+  <!-- Top Welcome Banner -->
+  <div class="student-top-banner">
+    <div>
+      <h1 class="welcome-title">Student Learning Hub</h1>
+      <p class="welcome-sub">
+        Welcome, <strong>{{ authService.currentUser()?.name || 'Student' }}</strong>. Connect to your active lectures, polls, and quizzes.
+      </p>
+    </div>
+
+    <div class="banner-actions" style="display: flex; gap: 0.75rem;">
+      <a routerLink="/student/leaderboard" class="btn btn-secondary">
+        <app-icon name="award" [size]="16"></app-icon>
+        Leaderboard
+      </a>
+      <a routerLink="/student/join" class="btn btn-primary">
+        <app-icon name="radio" [size]="16"></app-icon>
+        Join Room with PIN
+      </a>
+    </div>
+  </div>
+
+  <!-- 3 Streamlined Student Status Cards -->
+  <div class="stats-grid-3">
+    <app-stat-card
+      title="Current Classroom"
+      [value]="classroomService.activeClassroom().courseCode"
+      [subtext]="classroomService.activeClassroom().name"
+      icon="radio"
+      iconColorClass="icon-indigo"
+      delta="Live Room"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Live Polling"
+      value="Ready"
+      subtext="Real-time synchronized feedback"
+      icon="poll"
+      iconColorClass="icon-purple"
+      delta="Active"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Quizzes & Checkpoints"
+      [value]="quizService.quizzes().length + ' Available'"
+      subtext="Instant auto-graded evaluations"
+      icon="check-circle-2"
+      iconColorClass="icon-emerald"
+      delta="Self-Paced"
+      [deltaPositive]="true"
+    ></app-stat-card>
+  </div>
+
+  <!-- Active Classroom Live Card -->
+  <div class="active-room-card">
+    <div class="room-card-left">
+      <div class="live-pill">
+        <span class="live-dot-pulse"></span>
+        <span>LIVE CLASSROOM IN PROGRESS</span>
+      </div>
+      <h2 class="room-title">{{ classroomService.activeClassroom().name }}</h2>
+      <p class="room-instructor">Instructor: <strong>{{ classroomService.activeClassroom().teacherName }}</strong> • Room PIN: <strong>{{ classroomService.activeClassroom().roomCode }}</strong></p>
+
+      <div class="room-tags-row">
+        <div class="room-tag">
+          <span>PIN:</span>
+          <strong>{{ classroomService.activeClassroom().roomCode }}</strong>
+        </div>
+        <div class="room-tag">
+          <app-icon name="radio" [size]="14"></app-icon>
+          <span>Synchronized Web Session</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="room-card-right">
+      <button (click)="joinLiveSession()" class="btn btn-primary btn-lg">
+        <app-icon name="radio" [size]="18"></app-icon>
+        Enter Live Session
+      </button>
+    </div>
+  </div>
+
+  <!-- Quizzes Assessment Checkpoints Table -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">Available Quiz Assessments</h3>
+        <p class="card-subtitle">Take active quizzes or review previous exam attempts</p>
+      </div>
+    </div>
+    <div class="table-container" style="border: none; border-radius: 0;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Quiz Assessment</th>
+            <th>Duration</th>
+            <th>Score</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (quiz of quizService.quizzes(); track quiz.id) {
+            <tr>
+              <td>
+                <div class="quiz-item-cell">
+                  <span class="q-title-txt font-bold">{{ quiz.title }}</span>
+                  <span class="q-meta-txt">{{ quiz.subject }} • {{ quiz.totalQuestions }} questions ({{ quiz.totalMarks }} marks)</span>
+                </div>
+              </td>
+              <td>{{ quiz.durationMinutes }} mins</td>
+              <td>
+                @if (quizService.getSubmissionForQuiz(quiz.id); as sub) {
+                  <span class="badge badge-active font-bold">
+                    {{ sub.score }} / {{ sub.totalMarks }} ({{ sub.percentage }}%)
+                  </span>
+                } @else {
+                  <span class="text-slate-400">Not Attempted</span>
+                }
+              </td>
+              <td>
+                @if (quizService.getSubmissionForQuiz(quiz.id)) {
+                  <span class="badge badge-indigo">Completed</span>
+                } @else {
+                  <span class="badge badge-live">Ready</span>
+                }
+              </td>
+              <td>
+                @if (quizService.getSubmissionForQuiz(quiz.id)) {
+                  <button (click)="viewQuizResult(quiz.id)" class="btn btn-secondary btn-sm">
+                    <app-icon name="award" [size]="13"></app-icon>
+                    Review Answers
+                  </button>
+                } @else {
+                  <button (click)="takeQuiz(quiz.id)" class="btn btn-primary btn-sm">
+                    <app-icon name="play" [size]="13"></app-icon>
+                    Start Quiz
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 2.5rem 1rem; color: var(--slate-400);">
+                No active quizzes available currently. When your teacher publishes a quiz, it will appear here.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
