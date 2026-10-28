@@ -1,449 +1,747 @@
 <div class="teacher-dashboard">
-  <!-- Top Welcome Header -->
+  <!-- Top Academic Project Showcase Header -->
   <div class="dashboard-header">
-    <div>
-      <h1 class="welcome-heading">Welcome, Professor {{ authService.currentUser()?.name }}</h1>
+    <div class="header-left">
+      <div class="project-pill-badge">
+        <app-icon name="sparkles" [size]="15" customClass="text-indigo"></app-icon>
+        <span class="project-pill-text">WEB TECHNOLOGIES PRODUCT • PROJECT 33</span>
+        <div class="tech-stack-chips">
+          <span class="tech-chip">HTML5</span>
+          <span class="tech-chip">CSS3</span>
+          <span class="tech-chip">JavaScript</span>
+          <span class="tech-chip">Angular 19</span>
+          <span class="tech-chip">Node.js</span>
+          <span class="tech-chip">MongoDB</span>
+        </div>
+      </div>
+      <h1 class="welcome-heading">Smart Class Timetable Manager</h1>
       <p class="welcome-sub">
-        Classroom <strong>{{ classroomService.activeClassroom().courseCode }}</strong> • {{ classroomService.liveStudents().length }} students enrolled. Status: <strong>{{ classroomService.activeClassroom().isLive ? 'Live In Session' : 'Offline / Scheduled' }}</strong>
+        Welcome, <strong>Professor {{ authService.currentUser()?.name }}</strong> • Shared schedule management system with quick update control, conflict detection, and real-time student notifications.
       </p>
     </div>
 
     <div class="header-actions">
-      <button (click)="enterClassroom()" class="btn btn-primary shadow-md">
-        <app-icon name="radio" [size]="18"></app-icon>
-        {{ classroomService.activeClassroom().isLive ? 'Enter Live Classroom' : 'Start Live Session' }}
+      <button (click)="openAddModal()" class="btn btn-primary shadow-md">
+        <app-icon name="plus" [size]="16"></app-icon>
+        Add Class Slot
       </button>
+
+      <button (click)="openBroadcastModal()" class="btn btn-secondary shadow-sm">
+        <app-icon name="bell" [size]="16" customClass="text-indigo"></app-icon>
+        Broadcast Notice
+      </button>
+
+      <a routerLink="/teacher/timetable" class="btn btn-ghost shadow-sm">
+        <app-icon name="calendar" [size]="16"></app-icon>
+        Full Matrix
+      </a>
     </div>
   </div>
 
-  <!-- Pending Student Join Requests Banner (Teacher Approval) -->
-  @if (classroomService.pendingJoinRequests().length > 0) {
-    <div class="pending-admissions-banner">
-      <div class="banner-alert-left">
-        <div class="admissions-pulse-badge">
-          <span class="live-dot-pulse"></span>
-          <app-icon name="user" [size]="18"></app-icon>
-        </div>
-        <div>
-          <h4 class="admissions-alert-title">
-            {{ classroomService.pendingJoinRequests().length }} Student(s) Waiting for Admission
-          </h4>
-          <p class="admissions-alert-desc">
-            Students have entered PIN <strong>{{ classroomService.activeClassroom().roomCode }}</strong> and are waiting for your approval.
-          </p>
-        </div>
-      </div>
-
-      <div class="admissions-list-actions">
-        <div class="pending-students-chips">
-          @for (req of classroomService.pendingJoinRequests(); track req.id) {
-            <div class="student-req-chip">
-              <span class="req-name">{{ req.studentName }}</span>
-              <button
-                type="button"
-                class="btn-admit-chip"
-                (click)="classroomService.approveJoinRequest(req.id)"
-                title="Admit Student"
-              >
-                <app-icon name="check" [size]="14"></app-icon>
-                Admit
-              </button>
-              <button
-                type="button"
-                class="btn-deny-chip"
-                (click)="classroomService.rejectJoinRequest(req.id)"
-                title="Decline"
-              >
-                <app-icon name="x" [size]="14"></app-icon>
-              </button>
-            </div>
-          }
-        </div>
-
-        @if (classroomService.pendingJoinRequests().length > 1) {
-          <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            (click)="classroomService.admitAllPendingRequests()"
-          >
-            Admit All
-          </button>
-        }
-      </div>
-    </div>
-  }
-
-  <!-- 4 Core Statistics Cards -->
+  <!-- 4 Core Timetable Module KPIs -->
   <div class="stats-grid">
     <app-stat-card
-      title="Live Session Status"
-      [value]="classroomService.activeClassroom().isLive ? '1 Live' : '0 Offline'"
-      [subtext]="classroomService.activeClassroom().name + ' (' + classroomService.activeClassroom().courseCode + ')'"
-      icon="radio"
-      iconColorClass="icon-rose"
-      [delta]="classroomService.activeClassroom().isLive ? 'In Progress' : 'Idle'"
-      [deltaPositive]="classroomService.activeClassroom().isLive"
-      routerLink="/teacher/live-classroom"
-      [attr.title]="'Click to enter Live Classroom'"
-    ></app-stat-card>
-
-    <app-stat-card
-      title="Total Enrolled Students"
-      [value]="classroomService.liveStudents().length"
-      subtext="Across active class roster"
-      icon="users"
+      title="Total Timetable Slots"
+      [value]="timetableService.slots().length + ' Slots'"
+      subtext="Across Mon–Sat Weekly Matrix"
+      icon="calendar"
       iconColorClass="icon-indigo"
-      [delta]="classroomService.liveStudents().length > 0 ? (classroomService.liveStudents().length + ' Connected') : 'No Students Yet'"
-      [deltaPositive]="classroomService.liveStudents().length > 0"
-      routerLink="/teacher/students"
-      [attr.title]="'Click to view Student Roster'"
+      delta="6 Days Covered"
+      [deltaPositive]="true"
+      routerLink="/teacher/timetable"
+      [attr.title]="'Click to view Weekly Matrix'"
     ></app-stat-card>
 
     <app-stat-card
-      title="Poll Responses"
-      [value]="totalPollVotes"
-      subtext="Real-time submitted votes"
-      icon="poll"
+      title="Today's Classes"
+      [value]="timetableService.todaySlots().length + ' Classes'"
+      [subtext]="timetableService.activeSlot() ? (timetableService.activeSlot()?.courseCode + ' in ' + timetableService.activeSlot()?.room) : 'No lectures in session'"
+      icon="clock"
       iconColorClass="icon-purple"
-      [delta]="totalPollVotes > 0 ? (totalPollVotes + ' Total') : '0 Submitted'"
-      [deltaPositive]="totalPollVotes > 0"
-      routerLink="/teacher/polls"
-      [attr.title]="'Click to view All Polls'"
+      [delta]="timetableService.todaySlots().some(s => s.status === 'ongoing') ? 'Lecture In Session' : 'Scheduled'"
+      [deltaPositive]="true"
     ></app-stat-card>
 
     <app-stat-card
-      title="Average Participation"
-      [value]="avgParticipationRate + '%'"
-      [subtext]="classroomService.liveStudents().length > 0 ? 'Live turnout rate' : 'No activity recorded'"
-      icon="award"
-      iconColorClass="icon-emerald"
-      [delta]="avgParticipationRate > 0 ? (avgParticipationRate + '% Average') : '0%'"
-      [deltaPositive]="avgParticipationRate > 0"
-      routerLink="/teacher/analytics"
-      [attr.title]="'Click to view Detailed Analytics'"
+      title="Conflict Check Status"
+      [value]="timetableService.conflicts().length === 0 ? '0 Collisions' : (timetableService.conflicts().length + ' Warning')"
+      [subtext]="timetableService.conflicts().length === 0 ? 'All Rooms & Faculty Clean' : 'Room or Teacher Overlap'"
+      icon="alert-triangle"
+      [iconColorClass]="timetableService.conflicts().length === 0 ? 'icon-emerald' : 'icon-rose'"
+      [delta]="timetableService.conflicts().length === 0 ? '100% Conflict-Free' : 'Action Required'"
+      [deltaPositive]="timetableService.conflicts().length === 0"
+      (click)="runConflictAudit()"
+      [attr.title]="'Click to run instant conflict audit'"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Allocated Rooms & Labs"
+      [value]="uniqueRooms.length + ' Venues'"
+      subtext="Lecture Halls & Specialized Labs"
+      icon="home"
+      iconColorClass="icon-amber"
+      delta="Active Utilization"
+      [deltaPositive]="true"
     ></app-stat-card>
   </div>
 
-  <!-- Active Classroom Banner Card -->
-  <div class="active-class-card" [class.card-offline]="!classroomService.activeClassroom().isLive">
-    <div class="active-class-ambient"></div>
-    <div class="active-class-left">
-      <div class="live-pulse-badge" [class.badge-offline]="!classroomService.activeClassroom().isLive">
-        <span class="live-dot-pulse" *ngIf="classroomService.activeClassroom().isLive"></span>
-        <span>{{ classroomService.activeClassroom().isLive ? 'CLASSROOM IN SESSION' : 'CLASSROOM OFFLINE' }}</span>
+  <!-- Module 3: Conflict Check / Automated Collision Detection Showcase Banner -->
+  <div
+    class="conflict-engine-banner"
+    [class.banner-conflict-alert]="timetableService.conflicts().length > 0"
+  >
+    <div class="conflict-banner-left">
+      <div
+        class="conflict-shield-badge"
+        [class.badge-danger]="timetableService.conflicts().length > 0"
+      >
+        <span class="pulse-indicator" [class.pulse-danger]="timetableService.conflicts().length > 0"></span>
+        <app-icon
+          [name]="timetableService.conflicts().length > 0 ? 'alert-triangle' : 'check-circle-2'"
+          [size]="22"
+        ></app-icon>
       </div>
-      <h2 class="class-title">{{ classroomService.activeClassroom().name }} ({{ classroomService.activeClassroom().courseCode }})</h2>
-      <p class="class-desc">
-        {{ classroomService.activeClassroom().schedule }} • {{ classroomService.activeClassroom().roomLocation }}
-      </p>
-
-      <div class="class-meta-tags">
-        <div class="meta-tag">
-          <app-icon name="users" [size]="15"></app-icon>
-          <span><strong>{{ classroomService.liveStudents().length }}</strong> Connected Students</span>
+      <div>
+        <div class="conflict-status-label">
+          <span>MODULE 3: CONFLICT CHECK ENGINE</span>
+          <span class="status-pill" [ngClass]="timetableService.conflicts().length === 0 ? 'pill-optimal' : 'pill-alert'">
+            {{ timetableService.conflicts().length === 0 ? 'OPTIMAL' : 'COLLISION DETECTED' }}
+          </span>
         </div>
-        <button
-          type="button"
-          class="meta-tag room-code-tag interactive-pin-btn"
-          (click)="copyPin(classroomService.activeClassroom().roomCode)"
-          [title]="'Click to copy PIN ' + classroomService.activeClassroom().roomCode"
-        >
-          <span>PIN:</span>
-          <strong>{{ classroomService.activeClassroom().roomCode }}</strong>
-          <app-icon [name]="copiedPin ? 'check' : 'copy'" [size]="14" [customClass]="copiedPin ? 'text-emerald' : 'text-indigo'"></app-icon>
-          <span class="pin-copy-tooltip" *ngIf="copiedPin">Copied!</span>
-        </button>
-        <div class="meta-tag" *ngIf="classroomService.activeClassroom().isLive">
-          <app-icon name="clock" [size]="15"></app-icon>
-          <span>Started at {{ classroomService.activeClassroom().startedAt || '10:00 AM' }}</span>
-        </div>
+        <h3 class="conflict-headline">
+          {{ timetableService.conflicts().length === 0
+            ? 'Automated Collision Detection: 0 Conflicts Verified Clean'
+            : 'Schedule Collision Warning Detected!' }}
+        </h3>
+        <p class="conflict-sub">
+          {{ timetableService.conflicts().length === 0
+            ? 'Algorithms continuously monitor room bookings, faculty timetables, and student section overlaps across all 6 days.'
+            : timetableService.conflicts()[0].conflicts[0].message }}
+        </p>
       </div>
     </div>
 
-    <div class="active-class-right">
-      <button (click)="enterClassroom()" class="btn btn-primary btn-lg shadow-md">
-        <app-icon name="radio" [size]="18"></app-icon>
-        {{ classroomService.activeClassroom().isLive ? 'Enter Live Classroom' : 'Start Live Session' }}
+    <div class="conflict-banner-actions">
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm"
+        (click)="runConflictAudit()"
+        title="Audit all timetable entries"
+      >
+        <app-icon name="check" [size]="14"></app-icon>
+        Run Conflict Audit
       </button>
-      <button (click)="createPoll()" class="btn btn-secondary">
-        <app-icon name="plus" [size]="16"></app-icon>
-        Launch Instant Poll
+
+      <button
+        type="button"
+        class="btn btn-sm"
+        [ngClass]="hasSimulatedCollision ? 'btn-danger' : 'btn-outline'"
+        (click)="toggleSimulatedCollision()"
+        [title]="hasSimulatedCollision ? 'Clear simulated conflict' : 'Simulate a room clash to demonstrate detection'"
+      >
+        <app-icon [name]="hasSimulatedCollision ? 'x' : 'alert-triangle'" [size]="14"></app-icon>
+        {{ hasSimulatedCollision ? 'Clear Test Collision' : 'Test Collision Detection' }}
       </button>
     </div>
   </div>
 
-  <!-- Quick Action Shortcuts -->
-  <div class="quick-actions-bar">
-    <div class="quick-title">Quick Actions:</div>
-    <div class="quick-buttons">
-      <button routerLink="/teacher/timetable" class="quick-btn" style="border-color: var(--primary-400); background: rgba(99, 102, 241, 0.08);">
-        <app-icon name="calendar" [size]="16" customClass="text-indigo"></app-icon>
-        <span style="color: var(--primary-700); font-weight: 800;">Timetable Manager</span>
-      </button>
-      <button (click)="createPoll()" class="quick-btn">
-        <app-icon name="poll" [size]="16" customClass="text-indigo"></app-icon>
-        <span>Create Poll</span>
-      </button>
-      <button (click)="createQuiz()" class="quick-btn">
-        <app-icon name="quiz" [size]="16" customClass="text-purple"></app-icon>
-        <span>Create Quiz</span>
-      </button>
-      <button routerLink="/teacher/classrooms" class="quick-btn">
-        <app-icon name="book-open" [size]="16" customClass="text-emerald"></app-icon>
-        <span>Classrooms</span>
-      </button>
-      <button (click)="enterClassroom()" class="quick-btn">
-        <app-icon name="radio" [size]="16" customClass="text-rose"></app-icon>
-        <span>Start Classroom</span>
-      </button>
-      <button routerLink="/teacher/leaderboard" class="quick-btn">
-        <app-icon name="award" [size]="16" customClass="text-purple"></app-icon>
-        <span>Leaderboard</span>
-      </button>
-      <button routerLink="/teacher/analytics" class="quick-btn">
-        <app-icon name="bar-chart-3" [size]="16" customClass="text-emerald"></app-icon>
-        <span>View Analytics</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Shared Timetable System Widget (Project 33 Requirement) -->
-  <div class="card timetable-widget-card">
-    <div class="card-header">
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <div class="timetable-icon-pod">
+  <!-- Module 1 & 2: Shared Timetable View & Quick Update Control Center -->
+  <div class="card timetable-hub-card">
+    <div class="card-header hub-header">
+      <div class="hub-title-group">
+        <div class="hub-icon-pod">
           <app-icon name="calendar" [size]="20" [strokeWidth]="2.3"></app-icon>
         </div>
         <div>
-          <h3 class="card-title">Today's Class Timetable & Schedule</h3>
+          <h2 class="card-title">Shared Timetable & Schedule Management</h2>
           <p class="card-subtitle">
-            Shared timetable system with conflict detection •
-            <span [style.color]="timetableService.conflicts().length === 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)'" style="font-weight: 700;">
-              {{ timetableService.conflicts().length === 0 ? '0 Schedule Conflicts' : 'Collision Warning Active' }}
-            </span>
+            Module 1: Timetable View & Module 2: Admin Quick Update Control
           </p>
         </div>
       </div>
-      <div style="display: flex; gap: 0.5rem; align-items: center;">
-        <a routerLink="/teacher/timetable" class="btn btn-primary btn-sm shadow-sm">
-          <app-icon name="calendar" [size]="14"></app-icon>
-          Full Timetable Matrix
-        </a>
+
+      <div class="hub-controls">
+        <!-- Day Selector Pills -->
+        <div class="days-pills-row">
+          @for (d of days; track d) {
+            <button
+              type="button"
+              class="day-pill-btn"
+              [class.active]="timetableService.selectedDay() === d"
+              (click)="selectDay(d)"
+            >
+              {{ d.substring(0, 3) }}
+            </button>
+          }
+        </div>
+
+        <!-- Section Dropdown Filter -->
+        <div class="section-filter-wrap">
+          <select
+            class="filter-select"
+            [ngModel]="timetableService.selectedSection()"
+            (ngModelChange)="selectSection($event)"
+          >
+            @for (sec of sections; track sec) {
+              <option [value]="sec">{{ sec }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- View Switcher -->
+        <div class="view-toggle-wrap">
+          <button
+            type="button"
+            class="view-toggle-btn"
+            [class.active]="viewMode() === 'timeline'"
+            (click)="viewMode.set('timeline')"
+            title="Day Timeline View"
+          >
+            <app-icon name="clock" [size]="14"></app-icon>
+            Timeline
+          </button>
+          <button
+            type="button"
+            class="view-toggle-btn"
+            [class.active]="viewMode() === 'matrix'"
+            (click)="viewMode.set('matrix')"
+            title="Weekly Grid Matrix"
+          >
+            <app-icon name="layout-dashboard" [size]="14"></app-icon>
+            Matrix
+          </button>
+        </div>
+
+        <button (click)="openAddModal()" class="btn btn-primary btn-sm">
+          <app-icon name="plus" [size]="14"></app-icon>
+          Add Slot
+        </button>
       </div>
     </div>
-    <div class="card-body" style="padding: 1.25rem;">
-      <div class="today-slots-grid">
-        @for (slot of timetableService.todaySlots(); track slot.id) {
-          <div
-            class="today-slot-pill"
-            [ngClass]="'theme-' + slot.colorTag"
-            [class.slot-live-card]="slot.status === 'ongoing'"
-            routerLink="/teacher/timetable"
-          >
-            <div class="slot-pill-time">
-              <span class="pill-hour">{{ slot.startTime }}</span>
-              <span class="pill-tag">{{ slot.type }}</span>
-            </div>
-            <div class="slot-pill-info">
-              <div class="slot-pill-title-row">
-                <span class="pill-code">{{ slot.courseCode }}</span>
-                @if (slot.status === 'ongoing') {
-                  <span class="badge badge-live">
-                    <span class="live-dot-pulse"></span>
-                    ONGOING
-                  </span>
-                }
-                @if (slot.status === 'rescheduled') {
-                  <span class="badge badge-amber">RESCHEDULED</span>
-                }
-              </div>
-              <div class="pill-name">{{ slot.courseName }}</div>
-              <div class="pill-meta">
-                <span>Room: <strong>{{ slot.room }}</strong></span>
-                <span>• {{ slot.section }}</span>
-              </div>
-            </div>
+
+    <div class="card-body hub-body">
+      <!-- VIEW 1: DAY TIMELINE -->
+      @if (viewMode() === 'timeline') {
+        <div class="timeline-container">
+          <div class="timeline-day-heading">
+            <span class="day-label">{{ timetableService.selectedDay() }} Schedule</span>
+            <span class="section-tag">{{ timetableService.selectedSection() }}</span>
+            <span class="slots-count">{{ timetableService.filteredSlots().length }} Class Slot(s)</span>
           </div>
-        } @empty {
-          <div style="padding: 1rem; color: var(--slate-400); text-align: center; width: 100%;">
-            No classes scheduled for today. Check the <a routerLink="/teacher/timetable" style="color: var(--primary-600); font-weight: 700;">Timetable Manager</a> for the weekly schedule.
+
+          <div class="timeline-cards-grid">
+            @for (slot of timetableService.filteredSlots(); track slot.id) {
+              <div
+                class="timeline-slot-card"
+                [ngClass]="'theme-' + slot.colorTag"
+                [class.slot-ongoing]="slot.status === 'ongoing'"
+                [class.slot-rescheduled]="slot.status === 'rescheduled'"
+                [class.slot-cancelled]="slot.status === 'cancelled'"
+              >
+                <div class="slot-time-col">
+                  <span class="time-main">{{ slot.startTime }}</span>
+                  <span class="time-to">to</span>
+                  <span class="time-main">{{ slot.endTime }}</span>
+                  <span class="slot-type-chip">{{ slot.type }}</span>
+                </div>
+
+                <div class="slot-details-col">
+                  <div class="slot-top-bar">
+                    <div class="slot-course-tag">
+                      <span class="code-text">{{ slot.courseCode }}</span>
+                      <span class="sec-text">• {{ slot.section }}</span>
+                    </div>
+
+                    <div class="slot-status-badges">
+                      @if (slot.status === 'ongoing') {
+                        <span class="badge badge-live">
+                          <span class="live-dot-pulse"></span>
+                          IN SESSION
+                        </span>
+                      }
+                      @if (slot.status === 'rescheduled') {
+                        <span class="badge badge-amber">RESCHEDULED</span>
+                      }
+                      @if (slot.status === 'cancelled') {
+                        <span class="badge badge-rose">CANCELLED</span>
+                      }
+                    </div>
+                  </div>
+
+                  <h3 class="slot-course-name">{{ slot.courseName }}</h3>
+
+                  <div class="slot-meta-bar">
+                    <div class="meta-item room-item">
+                      <app-icon name="home" [size]="14" customClass="text-indigo"></app-icon>
+                      <span>Room: <strong>{{ slot.room }}</strong></span>
+                    </div>
+
+                    <div class="meta-item faculty-item">
+                      <app-icon name="user" [size]="14" customClass="text-slate-500"></app-icon>
+                      <span>Faculty: <strong>{{ slot.facultyName }}</strong></span>
+                    </div>
+                  </div>
+
+                  @if (slot.updateNote) {
+                    <div class="slot-update-note">
+                      <app-icon name="info" [size]="14"></app-icon>
+                      <span><strong>Update Note:</strong> {{ slot.updateNote }}</span>
+                    </div>
+                  }
+
+                  <!-- Admin Quick Update Control Buttons -->
+                  <div class="slot-action-toolbar">
+                    <button
+                      type="button"
+                      class="btn btn-secondary btn-sm"
+                      (click)="openEditModal(slot, $event)"
+                    >
+                      <app-icon name="edit-3" [size]="13"></app-icon>
+                      Reschedule / Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-sm text-danger"
+                      (click)="deleteSlot(slot.id, $event)"
+                      title="Remove Slot"
+                    >
+                      <app-icon name="trash-2" [size]="13"></app-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-schedule-card">
+                <app-icon name="calendar" [size]="44" customClass="text-slate-400"></app-icon>
+                <h4>No Classes Scheduled for {{ timetableService.selectedDay() }}</h4>
+                <p>Click "Add Class Slot" above to schedule a lecture or practical lab for this day.</p>
+                <button (click)="openAddModal(timetableService.selectedDay())" class="btn btn-secondary btn-sm">
+                  <app-icon name="plus" [size]="14"></app-icon>
+                  Assign Class on {{ timetableService.selectedDay() }}
+                </button>
+              </div>
+            }
           </div>
-        }
-      </div>
+        </div>
+      }
+
+      <!-- VIEW 2: WEEKLY GRID MATRIX -->
+      @if (viewMode() === 'matrix') {
+        <div class="matrix-table-wrap">
+          <table class="timetable-matrix-table">
+            <thead>
+              <tr>
+                <th class="time-head">Time Slot</th>
+                @for (d of days; track d) {
+                  <th [class.active-head]="d === timetableService.selectedDay()">{{ d }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (time of timeSlots; track time.label) {
+                <tr>
+                  <td class="time-cell">
+                    <span class="cell-start">{{ time.start }}</span>
+                    <span class="cell-end">{{ time.end }}</span>
+                  </td>
+                  @for (d of days; track d) {
+                    <td class="matrix-slot-cell">
+                      @let slot = getSlotForCell(d, time.label);
+                      @if (slot) {
+                        <div
+                          class="matrix-slot-pill"
+                          [ngClass]="'theme-' + slot.colorTag"
+                          [class.ongoing]="slot.status === 'ongoing'"
+                          (click)="openEditModal(slot, $event)"
+                          title="Click to edit or reschedule"
+                        >
+                          <div class="matrix-pill-top">
+                            <span class="pill-code">{{ slot.courseCode }}</span>
+                            <span class="pill-type">{{ slot.type }}</span>
+                          </div>
+                          <div class="pill-name">{{ slot.courseName }}</div>
+                          <div class="pill-room">
+                            <app-icon name="home" [size]="11"></app-icon>
+                            <span>{{ slot.room }}</span>
+                          </div>
+                        </div>
+                      } @else {
+                        <div
+                          class="matrix-empty-cell"
+                          (click)="openAddModal(d, time.start, time.end)"
+                          title="Click to schedule class"
+                        >
+                          <app-icon name="plus" [size]="12"></app-icon>
+                          <span>Free</span>
+                        </div>
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     </div>
   </div>
 
-  <!-- Main Split Layout: Chart + Recent Tables -->
-  <div class="dashboard-main-grid">
-    <!-- Participation Trend Chart Card -->
-    <div class="card chart-card">
+  <!-- Resource Utilization & Broadcast Feeds Row -->
+  <div class="dashboard-split-row">
+    <!-- Chart: Room & Venue Allocation Load -->
+    <div class="card split-card-chart">
       <div class="card-header">
         <div>
-          <h3 class="card-title">Classroom Participation & Quiz Trends</h3>
-          <p class="card-subtitle">Real-time engagement vs. student quiz averages for {{ classroomService.activeClassroom().name }}</p>
+          <h3 class="card-title">Classroom & Lab Utilization</h3>
+          <p class="card-subtitle">Scheduled sessions by room allocation across Monday–Saturday</p>
         </div>
-        <a routerLink="/teacher/analytics" class="btn btn-ghost btn-sm">
-          Detailed Analytics
-          <app-icon name="chevron-right" [size]="14"></app-icon>
-        </a>
+        <span class="badge badge-indigo">{{ uniqueRooms.length }} Active Rooms</span>
       </div>
       <div class="card-body">
         <app-chart
-          type="line"
-          [data]="chartData"
-          [options]="chartOptions"
-          height="280px"
+          type="bar"
+          [data]="roomUtilizationChartData"
+          [options]="roomChartOptions"
+          height="240px"
         ></app-chart>
       </div>
     </div>
 
-    <!-- Recent Polls Card -->
-    <div class="card">
+    <!-- Live Schedule Broadcasts & Notifications Feed (Module 4) -->
+    <div class="card split-card-notifs">
       <div class="card-header">
         <div>
-          <h3 class="card-title">Recent Polls</h3>
-          <p class="card-subtitle">Active and archived polling questions</p>
+          <h3 class="card-title">Schedule Broadcasts & Alerts</h3>
+          <p class="card-subtitle">Real-time update notices broadcasted to students</p>
         </div>
-        <button (click)="createPoll()" class="btn btn-outline btn-sm">
-          <app-icon name="plus" [size]="14"></app-icon>
-          New Poll
+        <button (click)="openBroadcastModal()" class="btn btn-outline btn-sm">
+          <app-icon name="bell" [size]="13"></app-icon>
+          Broadcast
         </button>
       </div>
-      <div class="table-container" style="border: none; border-radius: 0;">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Poll Question</th>
-              <th>Responses</th>
-              <th>Turnout</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (poll of pollService.polls().slice(0, 5); track poll.id) {
-              <tr>
-                <td>
-                  <div class="poll-cell">
-                    <span class="poll-question-text">{{ poll.question }}</span>
-                    <span class="poll-meta">{{ poll.title }} • {{ poll.createdAt }}</span>
-                  </div>
-                </td>
-                <td><strong>{{ poll.totalResponses }}</strong> votes</td>
-                <td>
-                  <span class="badge badge-indigo">
-                    {{ classroomService.liveStudents().length > 0 ? Math.round((poll.totalResponses / classroomService.liveStudents().length) * 100) : 0 }}%
-                  </span>
-                </td>
-                <td>
-                  <span
-                    class="badge"
-                    [ngClass]="poll.status === 'active' ? 'badge-live' : 'badge-draft'"
-                  >
-                    {{ poll.status }}
-                  </span>
-                </td>
-                <td>
-                  <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    @if (poll.status === 'active') {
-                      <a routerLink="/teacher/polls/live" class="btn btn-primary btn-sm">
-                        <app-icon name="eye" [size]="14"></app-icon>
-                        Live
-                      </a>
-                    } @else {
-                      <button (click)="startLivePoll(poll.id)" class="btn btn-secondary btn-sm">
-                        <app-icon name="play" [size]="14"></app-icon>
-                        Relaunch
-                      </button>
-                    }
-                    <button
-                      type="button"
-                      class="btn btn-danger btn-sm"
-                      (click)="pollService.deletePoll(poll.id)"
-                      title="Delete Poll"
-                    >
-                      <app-icon name="trash" [size]="14"></app-icon>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="5" style="text-align: center; padding: 2.5rem 1rem; color: var(--slate-400);">
-                  No polls created yet. Click <strong>"New Poll"</strong> above or launch an instant pulse from Live Classroom.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <div class="broadcasts-list">
+        @for (n of timetableService.notifications().slice(0, 5); track n.id) {
+          <div class="broadcast-item" [class.unread]="!n.read">
+            <div class="broadcast-icon-pod" [ngClass]="'pod-' + n.type">
+              <app-icon
+                [name]="n.type === 'reschedule' ? 'clock' : (n.type === 'cancel' ? 'alert-triangle' : 'bell')"
+                [size]="15"
+              ></app-icon>
+            </div>
+            <div class="broadcast-content">
+              <div class="broadcast-head">
+                <span class="broadcast-title">{{ n.title }}</span>
+                <span class="broadcast-time">{{ n.timestamp }}</span>
+              </div>
+              <p class="broadcast-msg">{{ n.message }}</p>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-broadcasts">
+            <p>No recent schedule updates.</p>
+          </div>
+        }
       </div>
     </div>
+  </div>
 
-    <!-- Recent Quizzes Card -->
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <h3 class="card-title">Recent Quizzes & Assessments</h3>
-          <p class="card-subtitle">Timed tests and concept checkpoints</p>
-        </div>
-        <button (click)="createQuiz()" class="btn btn-outline btn-sm">
-          <app-icon name="plus" [size]="14"></app-icon>
-          Build Quiz
+  <!-- Secondary Classroom Tools Dock (Quiz & Live Classroom) -->
+  <div class="card classroom-dock-card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">Active Interactive Classroom & Assessments</h3>
+        <p class="card-subtitle">Connected Live Classroom, instant student polling, and quick quiz checkpoint tools</p>
+      </div>
+      <div class="dock-actions">
+        <button (click)="enterClassroom()" class="btn btn-primary btn-sm">
+          <app-icon name="radio" [size]="14"></app-icon>
+          Live Classroom
+        </button>
+        <button (click)="createPoll()" class="btn btn-secondary btn-sm">
+          <app-icon name="poll" [size]="14"></app-icon>
+          Instant Poll
+        </button>
+        <button (click)="createQuiz()" class="btn btn-secondary btn-sm">
+          <app-icon name="quiz" [size]="14"></app-icon>
+          Create Quiz
         </button>
       </div>
-      <div class="table-container" style="border: none; border-radius: 0;">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Quiz Title</th>
-              <th>Questions</th>
-              <th>Submissions</th>
-              <th>Avg Score</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (quiz of quizService.quizzes(); track quiz.id) {
-              <tr>
-                <td>
-                  <div class="quiz-cell">
-                    <span class="quiz-title-text">{{ quiz.title }}</span>
-                    <span class="quiz-meta">{{ quiz.subject }} • {{ quiz.durationMinutes }} mins</span>
-                  </div>
-                </td>
-                <td>{{ quiz.totalQuestions }} questions ({{ quiz.totalMarks }} pts)</td>
-                <td><strong>{{ quiz.completedCount || 0 }}</strong> students</td>
-                <td>
-                  <span class="badge badge-active font-bold">
-                    {{ quiz.averageScore || 0 }}% Avg
-                  </span>
-                </td>
-                <td>
-                  <span class="badge badge-indigo">{{ quiz.status }}</span>
-                </td>
-                <td>
-                  <button
-                    type="button"
-                    class="btn btn-danger btn-sm"
-                    (click)="quizService.deleteQuiz(quiz.id)"
-                    title="Delete Quiz"
-                  >
-                    <app-icon name="trash" [size]="14"></app-icon>
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: var(--slate-400);">
-                  No quizzes created yet. Click <strong>"Build Quiz"</strong> above to create your first assessment.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+    </div>
+    <div class="card-body">
+      <div class="dock-summary-strip">
+        <div class="dock-item">
+          <span class="dock-label">Current PIN</span>
+          <button
+            type="button"
+            class="dock-pin-btn"
+            (click)="copyPin(classroomService.activeClassroom().roomCode)"
+            title="Click to copy"
+          >
+            <strong>{{ classroomService.activeClassroom().roomCode }}</strong>
+            <app-icon [name]="copiedPin ? 'check' : 'copy'" [size]="13"></app-icon>
+          </button>
+        </div>
+
+        <div class="dock-item">
+          <span class="dock-label">Enrolled Students</span>
+          <span class="dock-val"><strong>{{ classroomService.liveStudents().length }}</strong> Connected</span>
+        </div>
+
+        <div class="dock-item">
+          <span class="dock-label">Active Quizzes</span>
+          <span class="dock-val"><strong>{{ quizService.quizzes().length }}</strong> Ready</span>
+        </div>
+
+        <div class="dock-item">
+          <span class="dock-label">Poll Turnout</span>
+          <span class="dock-val"><strong>{{ avgParticipationRate }}%</strong> Avg</span>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- =========================================================================
+     MODAL 1: ADMIN EDIT / RESCHEDULE SLOT MODAL (MODULE 2: ADMIN EDIT)
+     ========================================================================= -->
+@if (isSlotModalOpen()) {
+  <div class="modal-backdrop" (click)="closeSlotModal()">
+    <div class="modal-content timetable-modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">{{ isEditMode() ? 'Reschedule & Edit Class Slot' : 'Add New Class Slot' }}</h3>
+          <p class="modal-subtitle">Update control with automatic room & faculty conflict collision checks</p>
+        </div>
+        <button type="button" class="btn btn-icon btn-sm" (click)="closeSlotModal()">
+          <app-icon name="x" [size]="18"></app-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Live Collision Warning inside modal -->
+        @if (modalConflicts().length > 0) {
+          <div class="modal-conflict-alert">
+            <div class="conflict-alert-icon">
+              <app-icon name="alert-triangle" [size]="20"></app-icon>
+            </div>
+            <div>
+              <h5 class="conflict-alert-heading">Collision Overlap Detected!</h5>
+              <p class="conflict-alert-text">{{ modalConflicts()[0].message }}</p>
+              <label class="force-override-check">
+                <input type="checkbox" [(ngModel)]="forceOverride" />
+                <span>Override & Force Schedule (Faculty Authorization)</span>
+              </label>
+            </div>
+          </div>
+        }
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label form-label-required">Course Code</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.courseCode"
+              placeholder="e.g. WT04, DS02, CS301"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">Course Name</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.courseName"
+              placeholder="e.g. Web Technologies"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label form-label-required">Day of Week</label>
+            <select class="form-control form-select" [(ngModel)]="formModel.day" (ngModelChange)="onFormChange()">
+              @for (d of days; track d) {
+                <option [value]="d">{{ d }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">Classroom / Venue</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.room"
+              placeholder="e.g. Lecture Hall 1, Room 302, Web Lab 2"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label form-label-required">Start Time</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.startTime"
+              placeholder="09:00 AM"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">End Time</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.endTime"
+              placeholder="10:00 AM"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+        </div>
+
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Instructor Name</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.facultyName"
+              placeholder="e.g. Dr. Priya Sharma"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Section</label>
+            <select class="form-control form-select" [(ngModel)]="formModel.section" (ngModelChange)="onFormChange()">
+              <option value="CSE-A">CSE-A</option>
+              <option value="CSE-B">CSE-B</option>
+              <option value="CSE-C">CSE-C</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <select class="form-control form-select" [(ngModel)]="formModel.type">
+              <option value="Lecture">Lecture</option>
+              <option value="Lab">Practical Lab</option>
+              <option value="Tutorial">Tutorial</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Schedule Status</label>
+            <select class="form-control form-select" [(ngModel)]="formModel.status">
+              <option value="scheduled">Scheduled (Normal)</option>
+              <option value="ongoing">In Session (Ongoing Now)</option>
+              <option value="rescheduled">Rescheduled</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Color Theme</label>
+            <select class="form-control form-select" [(ngModel)]="formModel.colorTag">
+              <option value="indigo">Indigo (Core Web Tech)</option>
+              <option value="emerald">Emerald (Databases)</option>
+              <option value="purple">Purple (Practical Labs)</option>
+              <option value="amber">Amber (Systems)</option>
+              <option value="rose">Rose (Electives)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Update Reason / Notice (Broadcasted to Student Notifications)</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="formModel.updateNote"
+            placeholder="e.g. Shifted to Web Lab 2 for hands-on Angular coding practicals"
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeSlotModal()">Cancel</button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="modalConflicts().length > 0 && !forceOverride()"
+          (click)="saveSlot()"
+        >
+          <app-icon name="check" [size]="16"></app-icon>
+          <span>{{ isEditMode() ? 'Save Schedule Update' : 'Confirm & Schedule' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- =========================================================================
+     MODAL 2: BROADCAST NOTICE MODAL (MODULE 4: NOTIFICATIONS)
+     ========================================================================= -->
+@if (isBroadcastModalOpen()) {
+  <div class="modal-backdrop" (click)="closeBroadcastModal()">
+    <div class="modal-content timetable-modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Broadcast Schedule Announcement</h3>
+          <p class="modal-subtitle">Instant real-time notification alert dispatched to all student dashboards</p>
+        </div>
+        <button type="button" class="btn btn-icon btn-sm" (click)="closeBroadcastModal()">
+          <app-icon name="x" [size]="18"></app-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label form-label-required">Notice Title</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="broadcastTitle"
+            placeholder="e.g. Room Shift Alert: Web Technologies WT04"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label form-label-required">Announcement Message</label>
+          <textarea
+            class="form-control"
+            rows="3"
+            [(ngModel)]="broadcastMessage"
+            placeholder="e.g. Today's 10:00 AM class has been shifted to Web Lab 2 for project evaluation."
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Alert Category</label>
+          <select class="form-control form-select" [(ngModel)]="broadcastType">
+            <option value="update">General Timetable Update</option>
+            <option value="reschedule">Rescheduled Lecture Notice</option>
+            <option value="cancel">Class Cancellation Notice</option>
+            <option value="conflict">Venue Adjustment Alert</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeBroadcastModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="submitBroadcast()">
+          <app-icon name="bell" [size]="15"></app-icon>
+          <span>Broadcast to All Students</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}

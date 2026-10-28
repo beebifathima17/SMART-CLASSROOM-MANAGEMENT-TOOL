@@ -347,4 +347,35 @@ export class TimetableController {
       res.status(500).json({ success: false, message: err.message || 'Error marking notifications.' });
     }
   }
+
+  public static async broadcastNotification(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { title, message, type } = req.body;
+      const user = req.user!;
+
+      if (!title || !message) {
+        res.status(400).json({ success: false, message: 'Title and message are required.' });
+        return;
+      }
+
+      const notification: ScheduleNotification = {
+        id: `notif-${Date.now()}`,
+        title,
+        message: `${message} (Broadcasted by ${user.name})`,
+        type: type || 'update',
+        timestamp: 'Just now',
+        read: false
+      };
+
+      db.update('scheduleNotifications', notifs => [notification, ...notifs]);
+
+      res.status(201).json({
+        success: true,
+        message: 'Schedule announcement broadcasted to students and faculty.',
+        data: notification
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message || 'Error broadcasting notification.' });
+    }
+  }
 }

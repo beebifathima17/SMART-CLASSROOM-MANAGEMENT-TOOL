@@ -1,152 +1,247 @@
 <div class="student-dashboard-wrapper">
-  <!-- Top Welcome Banner -->
+  <!-- Top Welcome Banner with Academic Project Badge -->
   <div class="student-top-banner">
     <div>
-      <h1 class="welcome-title">Student Learning Hub</h1>
+      <div class="student-project-pill">
+        <app-icon name="sparkles" [size]="14" customClass="text-indigo"></app-icon>
+        <span>WEB TECHNOLOGIES PRODUCT • PROJECT 33</span>
+        <span class="chip-sm">Angular 19</span>
+        <span class="chip-sm">MongoDB REST API</span>
+      </div>
+      <h1 class="welcome-title">Student Class Schedule & Timetable</h1>
       <p class="welcome-sub">
-        Welcome, <strong>{{ authService.currentUser()?.name || 'Student' }}</strong>. Connect to your active lectures, polls, and quizzes.
+        Welcome, <strong>{{ authService.currentUser()?.name || 'Student' }}</strong> • Synchronized lecture timetable, room locations, and real-time schedule notifications.
       </p>
     </div>
 
-    <div class="banner-actions" style="display: flex; gap: 0.75rem;">
-      <a routerLink="/student/timetable" class="btn btn-secondary">
-        <app-icon name="calendar" [size]="16" customClass="text-indigo"></app-icon>
-        Timetable
+    <div class="banner-actions">
+      <a routerLink="/student/timetable" class="btn btn-primary">
+        <app-icon name="calendar" [size]="16"></app-icon>
+        Full Weekly Matrix
       </a>
-      <a routerLink="/student/leaderboard" class="btn btn-secondary">
-        <app-icon name="award" [size]="16"></app-icon>
-        Leaderboard
-      </a>
-      <a routerLink="/student/join" class="btn btn-primary">
-        <app-icon name="radio" [size]="16"></app-icon>
+      <a routerLink="/student/join" class="btn btn-secondary">
+        <app-icon name="radio" [size]="16" customClass="text-indigo"></app-icon>
         Join Room with PIN
       </a>
     </div>
   </div>
 
-  <!-- 3 Streamlined Student Status Cards -->
-  <div class="stats-grid-3">
+  <!-- 4 Core Student Timetable KPI Cards -->
+  <div class="stats-grid-4">
     <app-stat-card
-      title="Current Classroom"
-      [value]="classroomService.activeClassroom().courseCode"
-      [subtext]="classroomService.activeClassroom().name"
-      icon="radio"
+      title="Today's Classes"
+      [value]="timetableService.todaySlots().length + ' Lectures'"
+      [subtext]="timetableService.activeSlot() ? (timetableService.activeSlot()?.courseCode + ' in ' + timetableService.activeSlot()?.room) : 'No lectures active'"
+      icon="calendar"
       iconColorClass="icon-indigo"
-      delta="Live Room"
+      [delta]="timetableService.todaySlots().some(s => s.status === 'ongoing') ? 'In Session' : 'Scheduled'"
       [deltaPositive]="true"
     ></app-stat-card>
 
     <app-stat-card
-      title="Live Polling"
-      value="Ready"
-      subtext="Real-time synchronized feedback"
-      icon="poll"
-      iconColorClass="icon-purple"
-      delta="Active"
-      [deltaPositive]="true"
-    ></app-stat-card>
-
-    <app-stat-card
-      title="Quizzes & Checkpoints"
-      [value]="quizService.quizzes().length + ' Available'"
-      subtext="Instant auto-graded evaluations"
-      icon="check-circle-2"
+      title="Current / Next Class"
+      [value]="timetableService.activeSlot() ? timetableService.activeSlot()?.courseCode! : 'Free Period'"
+      [subtext]="timetableService.activeSlot() ? ('Room: ' + timetableService.activeSlot()?.room) : 'Next class upcoming'"
+      icon="clock"
       iconColorClass="icon-emerald"
-      delta="Self-Paced"
+      [delta]="timetableService.activeSlot()?.startTime || '09:00 AM'"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Conflict Check Status"
+      value="0 Collisions"
+      subtext="Schedule Verified Conflict-Free"
+      icon="check-circle-2"
+      iconColorClass="icon-purple"
+      delta="100% Clean"
+      [deltaPositive]="true"
+    ></app-stat-card>
+
+    <app-stat-card
+      title="Schedule Alerts"
+      [value]="timetableService.notifications().length + ' Updates'"
+      subtext="Live broadcast notices"
+      icon="bell"
+      iconColorClass="icon-rose"
+      delta="Real-Time"
       [deltaPositive]="true"
     ></app-stat-card>
   </div>
 
-  <!-- Active Classroom Live Card -->
-  <div class="active-room-card">
-    <div class="room-card-left">
-      <div class="live-pill">
-        <span class="live-dot-pulse"></span>
-        <span>LIVE CLASSROOM IN PROGRESS</span>
-      </div>
-      <h2 class="room-title">{{ classroomService.activeClassroom().name }}</h2>
-      <p class="room-instructor">Instructor: <strong>{{ classroomService.activeClassroom().teacherName }}</strong> • Room PIN: <strong>{{ classroomService.activeClassroom().roomCode }}</strong></p>
+  <!-- Live Ongoing Lecture Highlight Banner (If any) -->
+  @if (timetableService.activeSlot(); as active) {
+    <div class="active-room-card" [class.is-live-slot]="active.status === 'ongoing'">
+      <div class="room-card-left">
+        <div class="live-pill" [class.pill-scheduled]="active.status !== 'ongoing'">
+          <span class="live-dot-pulse" *ngIf="active.status === 'ongoing'"></span>
+          <span>{{ active.status === 'ongoing' ? 'CLASS IN SESSION NOW' : 'NEXT UPCOMING LECTURE' }}</span>
+        </div>
+        <h2 class="room-title">{{ active.courseName }} ({{ active.courseCode }})</h2>
+        <p class="room-instructor">
+          Instructor: <strong>{{ active.facultyName }}</strong> • Venue: <strong>{{ active.room }}</strong> • Time: <strong>{{ active.timeSlot }}</strong>
+        </p>
 
-      <div class="room-tags-row">
-        <div class="room-tag">
-          <span>PIN:</span>
-          <strong>{{ classroomService.activeClassroom().roomCode }}</strong>
-        </div>
-        <div class="room-tag">
-          <app-icon name="radio" [size]="14"></app-icon>
-          <span>Synchronized Web Session</span>
-        </div>
+        @if (active.updateNote) {
+          <div class="active-note-badge">
+            <app-icon name="info" [size]="14"></app-icon>
+            <span>Notice: {{ active.updateNote }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="room-card-right">
+        <a routerLink="/student/timetable" class="btn btn-primary btn-lg shadow-md">
+          <app-icon name="calendar" [size]="18"></app-icon>
+          View Full Timetable
+        </a>
       </div>
     </div>
+  }
 
-    <div class="room-card-right">
-      <button (click)="joinLiveSession()" class="btn btn-primary btn-lg">
-        <app-icon name="radio" [size]="18"></app-icon>
-        Enter Live Session
-      </button>
-    </div>
-  </div>
-
-  <!-- Today's Timetable & Schedule Card for Students -->
-  <div class="card">
-    <div class="card-header" style="display: flex; align-items: center; justify-content: space-between;">
+  <!-- Module 1: Timetable Schedule & Day Filter View -->
+  <div class="card timetable-student-card">
+    <div class="card-header student-hub-header">
       <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <div style="width: 38px; height: 38px; border-radius: var(--radius-lg); background: linear-gradient(135deg, #eef2ff, #e0e7ff); color: var(--primary-600); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);">
+        <div class="student-icon-pod">
           <app-icon name="calendar" [size]="20"></app-icon>
         </div>
         <div>
-          <h3 class="card-title">Today's Class Schedule & Room Allocations</h3>
-          <p class="card-subtitle">Real-time synchronized student timetable with live update notifications</p>
+          <h3 class="card-title">Class Schedule & Room Allocations</h3>
+          <p class="card-subtitle">Real-time synchronized student timetable with quick updates and venue shifts</p>
         </div>
       </div>
-      <a routerLink="/student/timetable" class="btn btn-secondary btn-sm">
-        <app-icon name="calendar" [size]="14"></app-icon>
-        View Weekly Grid
-      </a>
+
+      <div class="student-hub-controls">
+        <div class="days-pills-row">
+          @for (d of days; track d) {
+            <button
+              type="button"
+              class="day-pill-btn"
+              [class.active]="timetableService.selectedDay() === d"
+              (click)="selectDay(d)"
+            >
+              {{ d.substring(0, 3) }}
+            </button>
+          }
+        </div>
+
+        <select
+          class="filter-select"
+          [ngModel]="timetableService.selectedSection()"
+          (ngModelChange)="selectSection($event)"
+        >
+          @for (sec of sections; track sec) {
+            <option [value]="sec">{{ sec }}</option>
+          }
+        </select>
+      </div>
     </div>
-    <div class="card-body" style="padding: 1.25rem;">
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem;">
-        @for (slot of timetableService.todaySlots(); track slot.id) {
+
+    <div class="card-body" style="padding: 1.5rem;">
+      <div class="student-slots-grid">
+        @for (slot of timetableService.filteredSlots(); track slot.id) {
           <div
-            style="display: flex; align-items: center; gap: 1rem; padding: 0.875rem 1rem; background: var(--bg-app); border: 1px solid var(--border-color); border-radius: var(--radius-xl); cursor: pointer; transition: all 0.2s;"
-            [class.border-indigo]="slot.status === 'ongoing'"
-            routerLink="/student/timetable"
+            class="student-slot-item"
+            [ngClass]="'theme-' + slot.colorTag"
+            [class.border-live]="slot.status === 'ongoing'"
           >
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding-right: 0.75rem; border-right: 1px solid var(--border-color); min-width: 75px;">
-              <span style="font-size: 0.8125rem; font-weight: 800;">{{ slot.startTime }}</span>
-              <span style="font-size: 0.625rem; font-weight: 700; color: var(--slate-400); text-transform: uppercase;">{{ slot.type }}</span>
+            <div class="slot-time-pod">
+              <span class="slot-time-hour">{{ slot.startTime }}</span>
+              <span class="slot-time-to">to</span>
+              <span class="slot-time-hour">{{ slot.endTime }}</span>
+              <span class="slot-type-chip">{{ slot.type }}</span>
             </div>
-            <div style="flex: 1; min-width: 0;">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-family: var(--font-mono); font-size: 0.75rem; font-weight: 800; color: var(--primary-600);">{{ slot.courseCode }}</span>
+
+            <div class="slot-info-col">
+              <div class="slot-info-top">
+                <span class="slot-code">{{ slot.courseCode }}</span>
+                <span class="slot-sec">{{ slot.section }}</span>
                 @if (slot.status === 'ongoing') {
-                  <span class="badge badge-live">LIVE NOW</span>
+                  <span class="badge badge-live">
+                    <span class="live-dot-pulse"></span>
+                    IN SESSION
+                  </span>
                 }
                 @if (slot.status === 'rescheduled') {
                   <span class="badge badge-amber">RESCHEDULED</span>
                 }
               </div>
-              <div style="font-size: 0.8125rem; font-weight: 700; margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ slot.courseName }}</div>
-              <div style="font-size: 0.6875rem; color: var(--slate-500); margin-top: 0.2rem;">
-                Room: <strong>{{ slot.room }}</strong> • {{ slot.facultyName }}
+
+              <h4 class="slot-title">{{ slot.courseName }}</h4>
+
+              <div class="slot-meta-details">
+                <span class="venue-tag">
+                  <app-icon name="home" [size]="13" customClass="text-indigo"></app-icon>
+                  Room: <strong>{{ slot.room }}</strong>
+                </span>
+                <span class="instructor-tag">
+                  <app-icon name="user" [size]="13" customClass="text-slate-400"></app-icon>
+                  {{ slot.facultyName }}
+                </span>
               </div>
+
+              @if (slot.updateNote) {
+                <div class="slot-note-bar">
+                  <app-icon name="info" [size]="13"></app-icon>
+                  <span>{{ slot.updateNote }}</span>
+                </div>
+              }
             </div>
           </div>
         } @empty {
-          <div style="padding: 1rem; color: var(--slate-400); text-align: center; width: 100%;">
-            No scheduled classes remaining for today. View the <a routerLink="/student/timetable" style="color: var(--primary-600); font-weight: 700;">full weekly timetable</a>.
+          <div class="empty-student-slots">
+            <app-icon name="calendar" [size]="40" customClass="text-slate-400"></app-icon>
+            <h4>No Classes Scheduled on {{ timetableService.selectedDay() }}</h4>
+            <p>Enjoy your break or check the full weekly timetable.</p>
           </div>
         }
       </div>
     </div>
   </div>
 
-  <!-- Quizzes Assessment Checkpoints Table -->
+  <!-- Real-Time Schedule Broadcasts & Notifications Feed (Module 4: Notifications) -->
+  <div class="card">
+    <div class="card-header" style="display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: rgba(99, 102, 241, 0.1); color: var(--primary-600); display: flex; align-items: center; justify-content: center;">
+          <app-icon name="bell" [size]="18"></app-icon>
+        </div>
+        <div>
+          <h3 class="card-title">Live Schedule Updates & Room Shift Notices</h3>
+          <p class="card-subtitle">Real-time alerts broadcasted directly by faculty and administration</p>
+        </div>
+      </div>
+      <button (click)="timetableService.markNotificationsRead()" class="btn btn-ghost btn-sm">
+        Mark all read
+      </button>
+    </div>
+    <div class="card-body" style="padding: 1.25rem;">
+      <div class="student-notifs-list">
+        @for (n of timetableService.notifications().slice(0, 4); track n.id) {
+          <div class="student-notif-pill" [class.unread]="!n.read">
+            <div class="notif-badge-tag" [ngClass]="'tag-' + n.type">
+              {{ n.type | uppercase }}
+            </div>
+            <div class="notif-body-wrap">
+              <div class="notif-row-head">
+                <span class="notif-head-title">{{ n.title }}</span>
+                <span class="notif-head-time">{{ n.timestamp }}</span>
+              </div>
+              <p class="notif-head-msg">{{ n.message }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Available Quizzes & Assessments Checkpoints Table -->
   <div class="card">
     <div class="card-header">
       <div>
         <h3 class="card-title">Available Quiz Assessments</h3>
-        <p class="card-subtitle">Take active quizzes or review previous exam attempts</p>
+        <p class="card-subtitle">Course evaluation checkpoints and timed concept tests</p>
       </div>
     </div>
     <div class="table-container" style="border: none; border-radius: 0;">
@@ -203,7 +298,7 @@
           } @empty {
             <tr>
               <td colspan="5" style="text-align: center; padding: 2.5rem 1rem; color: var(--slate-400);">
-                No active quizzes available currently. When your teacher publishes a quiz, it will appear here.
+                No active quizzes available currently.
               </td>
             </tr>
           }

@@ -7,6 +7,7 @@ const router = Router();
 router.get('/', authenticateToken, TimetableController.getAll);
 router.get('/notifications', authenticateToken, TimetableController.getNotifications);
 router.post('/notifications/mark-read', authenticateToken, TimetableController.markNotificationsRead);
+router.post('/notifications/broadcast', authenticateToken, requireRole('teacher', 'admin'), TimetableController.broadcastNotification);
 router.post('/check-conflicts', authenticateToken, TimetableController.checkConflicts);
 router.get('/:id', authenticateToken, TimetableController.getById);
 

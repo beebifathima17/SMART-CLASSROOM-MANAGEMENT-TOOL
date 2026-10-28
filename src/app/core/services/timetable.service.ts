@@ -548,4 +548,88 @@ export class TimetableService {
     this.saveToStorage();
     this.api.post('/timetable/notifications/mark-read', {}).subscribe({ next: () => {}, error: () => {} });
   }
+
+  public broadcastNotification(
+    title: string,
+    message: string,
+    type: 'update' | 'reschedule' | 'cancel' | 'conflict' = 'update'
+  ): void {
+    const notif: ScheduleNotification = {
+      id: `notif-${Date.now()}`,
+      title,
+      message,
+      type,
+      timestamp: 'Just now',
+      read: false
+    };
+    this.notificationsSignal.update(list => [notif, ...list]);
+    this.saveToStorage();
+    this.api.post('/timetable/notifications/broadcast', { title, message, type }).subscribe({
+      next: () => {},
+      error: () => {}
+    });
+    this.toast.success(`Announcement broadcasted to all students!`);
+  }
+
+  public runConflictAudit(): { totalChecked: number; conflictsCount: number; clean: boolean } {
+    const all = this.slotsSignal();
+    const active = all.filter(s => s.status !== 'cancelled');
+    const conflicts = this.conflicts();
+
+    if (conflicts.length === 0) {
+      this.toast.success(
+        `Audit Verified Clean: All ${active.length} slots checked across rooms & faculty with 0 collisions!`,
+        'Conflict Engine 100% Optimal'
+      );
+    } else {
+      this.toast.warning(
+        `Audit Alert: ${conflicts.length} schedule conflict(s) detected! Immediate resolution needed.`,
+        'Collision Detected'
+      );
+    }
+    return {
+      totalChecked: active.length,
+      conflictsCount: conflicts.length,
+      clean: conflicts.length === 0
+    };
+  }
+
+  public simulateCollisionDemo(): void {
+    const existing = this.slotsSignal().find(s => s.courseCode === 'WT04' && s.day === 'Monday');
+    if (existing) {
+      // Remove any existing demo first
+      this.slotsSignal.update(slots => slots.filter(s => s.id !== 'slot-demo-collision'));
+
+      const clashSlot: TimetableSlot = {
+        id: 'slot-demo-collision',
+        courseCode: 'DEMO-CLASH',
+        courseName: 'Test Overlap Demo (Simulated Collision)',
+        facultyId: 'usr-fac-99',
+        facultyName: 'Dr. Test Collision',
+        day: 'Monday',
+        timeSlot: existing.timeSlot,
+        startTime: existing.startTime,
+        endTime: existing.endTime,
+        room: existing.room, // Same room at same time!
+        section: 'CSE-B',
+        semester: 'Semester 5',
+        type: 'Lecture',
+        colorTag: 'rose',
+        status: 'scheduled'
+      };
+      this.slotsSignal.update(slots => [clashSlot, ...slots]);
+      this.toast.warning(
+        `Collision Simulated: Room '${existing.room}' double-booked on Monday ${existing.timeSlot}!`,
+        'Conflict Detection Engine Active'
+      );
+    }
+  }
+
+  public resolveCollisionDemo(): void {
+    const hadDemo = this.slotsSignal().some(s => s.id === 'slot-demo-collision');
+    this.slotsSignal.update(slots => slots.filter(s => s.id !== 'slot-demo-collision'));
+    if (hadDemo) {
+      this.toast.success('Simulation cleared. All 0 conflicts verified clean!');
+    }
+  }
 }

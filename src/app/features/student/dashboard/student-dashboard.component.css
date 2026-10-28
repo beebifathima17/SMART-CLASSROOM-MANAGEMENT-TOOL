@@ -1,36 +1,87 @@
 .student-dashboard-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.75rem;
 }
 
+/* ==========================================================================
+   Top Header Banner
+   ========================================================================== */
 .student-top-banner {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.25rem;
+}
+
+.student-project-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: var(--primary-700);
+  margin-bottom: 0.65rem;
+}
+
+[data-theme="dark"] .student-project-pill {
+  color: #a5b4fc;
+}
+
+.chip-sm {
+  font-size: 0.625rem;
+  padding: 0.1rem 0.4rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius-sm);
+  color: var(--slate-700);
+}
+
+[data-theme="dark"] .chip-sm {
+  background: rgba(30, 41, 59, 0.8);
+  color: #cbd5e1;
 }
 
 .welcome-title {
-  font-size: 1.625rem;
-  font-weight: 800;
+  font-size: 1.85rem;
+  font-weight: 850;
   color: var(--slate-900);
   letter-spacing: -0.02em;
+}
+
+[data-theme="dark"] .welcome-title {
+  color: #ffffff;
 }
 
 .welcome-sub {
   font-size: 0.875rem;
   color: var(--slate-500);
-  margin-top: 0.25rem;
+  margin-top: 0.3rem;
 }
 
-.stats-grid {
+.banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   4 KPI Stat Cards
+   ========================================================================== */
+.stats-grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.25rem;
 }
 
+/* ==========================================================================
+   Active Room Highlight Card
+   ========================================================================== */
 .active-room-card {
   background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
   border: 1px solid #bfdbfe;
@@ -41,60 +92,451 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1.5rem;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.08);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.08);
+}
+
+.active-room-card.is-live-slot {
+  background: linear-gradient(135deg, #ffffff 0%, #fff1f2 100%);
+  border-color: rgba(244, 63, 94, 0.4);
+  box-shadow: 0 8px 24px rgba(244, 63, 94, 0.15);
+}
+
+[data-theme="dark"] .active-room-card {
+  background: linear-gradient(135deg, #111827 0%, #1e1b4b 100%);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+[data-theme="dark"] .active-room-card.is-live-slot {
+  background: linear-gradient(135deg, #111827 0%, #4c0519 100%);
+  border-color: rgba(244, 63, 94, 0.4);
 }
 
 .live-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.2rem 0.625rem;
+  gap: 0.4rem;
+  padding: 0.25rem 0.7rem;
   background-color: #fee2e2;
   color: var(--accent-rose);
   font-size: 0.6875rem;
   font-weight: 800;
   border-radius: var(--radius-full);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.pill-scheduled {
+  background-color: #dbeafe;
+  color: var(--primary-600);
+}
+
+.live-dot-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--accent-rose);
+  box-shadow: 0 0 8px var(--accent-rose);
+  animation: pulse 1.5s infinite;
 }
 
 .room-title {
-  font-size: 1.375rem;
+  font-size: 1.45rem;
   font-weight: 800;
   color: var(--slate-900);
+}
+
+[data-theme="dark"] .room-title {
+  color: #ffffff;
 }
 
 .room-instructor {
   font-size: 0.875rem;
   color: var(--slate-600);
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
 }
 
-.room-tags-row {
+[data-theme="dark"] .room-instructor {
+  color: #94a3b8;
+}
+
+.active-note-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .active-note-badge {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fde68a;
+}
+
+/* ==========================================================================
+   Student Timetable Hub
+   ========================================================================== */
+.timetable-student-card {
+  box-shadow: 0 6px 24px -4px rgba(15, 23, 42, 0.05);
+}
+
+.student-hub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.student-icon-pod {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  color: var(--primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);
+}
+
+[data-theme="dark"] .student-icon-pod {
+  background: rgba(99, 102, 241, 0.25);
+  color: #a5b4fc;
+}
+
+.student-hub-controls {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-top: 1rem;
   flex-wrap: wrap;
 }
 
-.room-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.8125rem;
-  padding: 0.35rem 0.75rem;
-  background-color: #ffffff;
+.days-pills-row {
+  display: flex;
+  background: var(--bg-app);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--slate-700);
+  border-radius: var(--radius-xl);
+  padding: 0.2rem;
+  gap: 0.2rem;
 }
 
-.student-main-grid {
+.day-pill-btn {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: var(--slate-600);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+[data-theme="dark"] .day-pill-btn {
+  color: #94a3b8;
+}
+
+.day-pill-btn.active {
+  background: #ffffff;
+  color: var(--primary-700);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .day-pill-btn.active {
+  background: var(--primary-600);
+  color: #ffffff;
+}
+
+.filter-select {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-app);
+  color: var(--slate-700);
+  cursor: pointer;
+}
+
+[data-theme="dark"] .filter-select {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+/* ==========================================================================
+   Student Slots Grid
+   ========================================================================== */
+.student-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+}
+
+.student-slot-item {
+  display: flex;
+  background: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.student-slot-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12);
+  border-color: var(--primary-300);
+}
+
+.student-slot-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+}
+
+.theme-indigo::before { background: #6366f1; }
+.theme-emerald::before { background: #10b981; }
+.theme-purple::before { background: #a855f7; }
+.theme-amber::before { background: #f59e0b; }
+.theme-rose::before { background: #f43f5e; }
+
+[data-theme="dark"] .student-slot-item {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.slot-time-pod {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 0.85rem;
+  background: rgba(0, 0, 0, 0.02);
+  border-right: 1px solid var(--border-color);
+  min-width: 90px;
 }
 
+[data-theme="dark"] .slot-time-pod {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.slot-time-hour {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+[data-theme="dark"] .slot-time-hour {
+  color: #ffffff;
+}
+
+.slot-time-to {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  color: var(--slate-400);
+  text-transform: uppercase;
+}
+
+.slot-type-chip {
+  font-size: 0.625rem;
+  font-weight: 800;
+  color: var(--primary-700);
+  background: rgba(99, 102, 241, 0.12);
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-sm);
+  margin-top: 0.4rem;
+  text-transform: uppercase;
+}
+
+.slot-info-col {
+  flex: 1;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.slot-info-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.slot-code {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 850;
+  color: var(--primary-600);
+}
+
+.slot-sec {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--slate-400);
+}
+
+.slot-title {
+  font-size: 0.9375rem;
+  font-weight: 750;
+  color: var(--slate-900);
+  margin-top: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-theme="dark"] .slot-title {
+  color: #ffffff;
+}
+
+.slot-meta-details {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.venue-tag, .instructor-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--slate-600);
+}
+
+[data-theme="dark"] .venue-tag,
+[data-theme="dark"] .instructor-tag {
+  color: #94a3b8;
+}
+
+.slot-note-bar {
+  margin-top: 0.65rem;
+  padding: 0.35rem 0.65rem;
+  background: #fef3c7;
+  border-left: 3px solid #f59e0b;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+[data-theme="dark"] .slot-note-bar {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fde68a;
+}
+
+.border-live {
+  border-color: var(--accent-rose) !important;
+  box-shadow: 0 4px 16px rgba(244, 63, 94, 0.18) !important;
+}
+
+.empty-student-slots {
+  grid-column: 1 / -1;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--slate-400);
+}
+
+/* ==========================================================================
+   Student Notifications Feed
+   ========================================================================== */
+.student-notifs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.student-notif-pill {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  transition: all 0.2s;
+}
+
+[data-theme="dark"] .student-notif-pill {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.student-notif-pill.unread {
+  border-left: 3px solid var(--primary-500);
+}
+
+.notif-badge-tag {
+  font-size: 0.625rem;
+  font-weight: 800;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.tag-update { background: rgba(99, 102, 241, 0.12); color: var(--primary-600); }
+.tag-reschedule { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+.tag-cancel { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); }
+.tag-conflict { background: rgba(168, 85, 247, 0.15); color: #9333ea; }
+
+.notif-body-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.notif-head-title {
+  font-size: 0.8125rem;
+  font-weight: 750;
+  color: var(--slate-900);
+}
+
+[data-theme="dark"] .notif-head-title {
+  color: #ffffff;
+}
+
+.notif-head-time {
+  font-size: 0.6875rem;
+  color: var(--slate-400);
+}
+
+.notif-head-msg {
+  font-size: 0.75rem;
+  color: var(--slate-600);
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+
+[data-theme="dark"] .notif-head-msg {
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   Quiz cell
+   ========================================================================== */
 .quiz-item-cell {
   display: flex;
   flex-direction: column;
@@ -105,16 +547,33 @@
   color: var(--slate-900);
 }
 
+[data-theme="dark"] .q-title-txt {
+  color: #ffffff;
+}
+
 .q-meta-txt {
   font-size: 0.75rem;
   color: var(--slate-400);
 }
 
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
 @media (max-width: 1024px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 640px) {
-  .stats-grid { grid-template-columns: 1fr; }
-  .active-room-card { flex-direction: column; align-items: flex-start; }
+  .stats-grid-4 {
+    grid-template-columns: 1fr;
+  }
+  .active-room-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .student-slots-grid {
+    grid-template-columns: 1fr;
+  }
 }
