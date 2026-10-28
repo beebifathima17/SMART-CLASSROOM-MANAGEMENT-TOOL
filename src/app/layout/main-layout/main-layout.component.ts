@@ -97,6 +97,7 @@ export class MainLayoutComponent {
     if (role === 'teacher') {
       return [
         { label: 'Dashboard', route: '/teacher/dashboard', icon: 'layout-dashboard' },
+        { label: 'Timetable', route: '/teacher/timetable', icon: 'calendar', badge: 'Schedule', badgeClass: 'badge-indigo' },
         { label: 'Classrooms', route: '/teacher/classrooms', icon: 'book-open' },
         { label: 'Live Classroom', route: '/teacher/live-classroom', icon: 'radio', badge: 'LIVE', badgeClass: 'badge-live' },
         { label: 'Polls', route: '/teacher/polls', icon: 'poll' },
@@ -109,6 +110,7 @@ export class MainLayoutComponent {
     } else if (role === 'student') {
       return [
         { label: 'Dashboard', route: '/student/dashboard', icon: 'layout-dashboard' },
+        { label: 'Timetable', route: '/student/timetable', icon: 'calendar', badge: 'Active', badgeClass: 'badge-indigo' },
         { label: 'Join Classroom', route: '/student/join', icon: 'radio' },
         { label: 'My Polls', route: '/student/live-poll', icon: 'poll', badge: 'Active', badgeClass: 'badge-live' },
         { label: 'My Quizzes', route: '/student/quizzes', icon: 'quiz' },
@@ -118,6 +120,7 @@ export class MainLayoutComponent {
     } else if (role === 'admin') {
       return [
         { label: 'Admin Dashboard', route: '/admin/dashboard', icon: 'layout-dashboard' },
+        { label: 'Timetable Manager', route: '/admin/timetable', icon: 'calendar', badge: 'Control', badgeClass: 'badge-indigo' },
         { label: 'User Management', route: '/admin/users', icon: 'users' },
         { label: 'Classrooms Directory', route: '/admin/classrooms', icon: 'book-open' }
       ];

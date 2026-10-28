@@ -9,6 +9,7 @@ import classroomRoutes from './routes/classroom.routes';
 import pollRoutes from './routes/poll.routes';
 import quizRoutes from './routes/quiz.routes';
 import analyticsRoutes from './routes/analytics.routes';
+import timetableRoutes from './routes/timetable.routes';
 import { registerClassroomSockets } from './sockets/classroom.socket';
 
 const app = express();
@@ -43,6 +44,7 @@ app.use('/api/classrooms', classroomRoutes);
 app.use('/api/polls', pollRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/timetable', timetableRoutes);
 
 // Register WebSockets
 registerClassroomSockets(io);

@@ -80,6 +80,22 @@ async function runTests() {
   const analytics = await get('/api/analytics/teacher-dashboard', token);
   console.log('6. Teacher Dashboard Analytics:', analytics.status === 200 ? '✅ PASS' : '❌ FAIL', 'Class:', analytics.data?.data?.classroom?.name);
 
+  // 7. Timetable Slots
+  const timetable = await get('/api/timetable', token);
+  console.log('7. Timetable Slots:', timetable.status === 200 ? '✅ PASS' : '❌ FAIL', `Slots Count: ${timetable.data?.data?.length}`);
+
+  // 8. Timetable Conflict Check
+  const conflictTest = await post('/api/timetable/check-conflicts', {
+    day: 'Monday',
+    timeSlot: '09:00 AM - 10:00 AM',
+    room: 'Lecture Hall 1'
+  }, token);
+  console.log('8. Conflict Check (Collision Expected):', conflictTest.status === 200 && conflictTest.data?.hasConflict ? '✅ PASS (Collision Detected Correctly)' : '❌ FAIL');
+
+  // 9. Timetable Notifications
+  const notifs = await get('/api/timetable/notifications', token);
+  console.log('9. Schedule Notifications:', notifs.status === 200 ? '✅ PASS' : '❌ FAIL', `Notifs Count: ${notifs.data?.data?.length}`);
+
   console.log('\n✨ All backend test suites verified successfully!');
 }
 

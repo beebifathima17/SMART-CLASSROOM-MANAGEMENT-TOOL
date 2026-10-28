@@ -5,6 +5,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ClassroomService } from '../../../core/services/classroom.service';
 import { QuizService } from '../../../core/services/quiz.service';
 import { PollService } from '../../../core/services/poll.service';
+import { TimetableService } from '../../../core/services/timetable.service';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 
@@ -19,6 +20,7 @@ export class StudentDashboardComponent {
   protected classroomService = inject(ClassroomService);
   protected quizService = inject(QuizService);
   protected pollService = inject(PollService);
+  protected timetableService = inject(TimetableService);
   private router = inject(Router);
 
   joinLiveSession(): void {

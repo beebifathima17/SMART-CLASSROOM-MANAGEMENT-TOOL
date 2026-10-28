@@ -134,6 +134,37 @@ export interface ActivityLog {
   timestamp: string;
 }
 
+export interface TimetableSlot {
+  id: string;
+  courseCode: string;
+  courseName: string;
+  facultyId: string;
+  facultyName: string;
+  day: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday';
+  timeSlot: string; // e.g. "09:00 AM - 10:00 AM"
+  startTime: string; // e.g. "09:00 AM"
+  endTime: string;   // e.g. "10:00 AM"
+  room: string;      // e.g. "Lecture Hall 1", "Room 304", "Web Lab 2"
+  section: string;   // e.g. "CSE-A", "CSE-B"
+  semester: string;  // e.g. "Semester 5"
+  type: 'Lecture' | 'Lab' | 'Tutorial';
+  colorTag: 'indigo' | 'emerald' | 'purple' | 'amber' | 'rose';
+  status: 'scheduled' | 'ongoing' | 'rescheduled' | 'cancelled';
+  updateNote?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+}
+
+export interface ScheduleNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'update' | 'reschedule' | 'cancel' | 'conflict';
+  timestamp: string;
+  read: boolean;
+  slotId?: string;
+}
+
 export interface DatabaseSchema {
   users: User[];
   classrooms: Classroom[];
@@ -144,4 +175,6 @@ export interface DatabaseSchema {
   quizzes: Quiz[];
   quizSubmissions: QuizSubmission[];
   activityLogs: ActivityLog[];
+  timetableSlots: TimetableSlot[];
+  scheduleNotifications: ScheduleNotification[];
 }

@@ -100,6 +100,11 @@ export const routes: Routes = [
         path: 'leaderboard',
         loadComponent: () =>
           import('./features/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent)
+      },
+      {
+        path: 'timetable',
+        loadComponent: () =>
+          import('./features/timetable/timetable-manager.component').then(m => m.TimetableManagerComponent)
       }
     ]
   },
@@ -154,6 +159,11 @@ export const routes: Routes = [
         path: 'leaderboard',
         loadComponent: () =>
           import('./features/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent)
+      },
+      {
+        path: 'timetable',
+        loadComponent: () =>
+          import('./features/timetable/timetable-manager.component').then(m => m.TimetableManagerComponent)
       }
     ]
   },
@@ -183,6 +193,11 @@ export const routes: Routes = [
         path: 'classrooms',
         loadComponent: () =>
           import('./features/admin/classrooms/admin-classrooms.component').then(m => m.AdminClassroomsComponent)
+      },
+      {
+        path: 'timetable',
+        loadComponent: () =>
+          import('./features/timetable/timetable-manager.component').then(m => m.TimetableManagerComponent)
       }
     ]
   },

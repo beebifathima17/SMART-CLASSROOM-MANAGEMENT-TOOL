@@ -176,6 +176,10 @@
   <div class="quick-actions-bar">
     <div class="quick-title">Quick Actions:</div>
     <div class="quick-buttons">
+      <button routerLink="/teacher/timetable" class="quick-btn" style="border-color: var(--primary-400); background: rgba(99, 102, 241, 0.08);">
+        <app-icon name="calendar" [size]="16" customClass="text-indigo"></app-icon>
+        <span style="color: var(--primary-700); font-weight: 800;">Timetable Manager</span>
+      </button>
       <button (click)="createPoll()" class="quick-btn">
         <app-icon name="poll" [size]="16" customClass="text-indigo"></app-icon>
         <span>Create Poll</span>
@@ -200,6 +204,72 @@
         <app-icon name="bar-chart-3" [size]="16" customClass="text-emerald"></app-icon>
         <span>View Analytics</span>
       </button>
+    </div>
+  </div>
+
+  <!-- Shared Timetable System Widget (Project 33 Requirement) -->
+  <div class="card timetable-widget-card">
+    <div class="card-header">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div class="timetable-icon-pod">
+          <app-icon name="calendar" [size]="20" [strokeWidth]="2.3"></app-icon>
+        </div>
+        <div>
+          <h3 class="card-title">Today's Class Timetable & Schedule</h3>
+          <p class="card-subtitle">
+            Shared timetable system with conflict detection •
+            <span [style.color]="timetableService.conflicts().length === 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)'" style="font-weight: 700;">
+              {{ timetableService.conflicts().length === 0 ? '0 Schedule Conflicts' : 'Collision Warning Active' }}
+            </span>
+          </p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <a routerLink="/teacher/timetable" class="btn btn-primary btn-sm shadow-sm">
+          <app-icon name="calendar" [size]="14"></app-icon>
+          Full Timetable Matrix
+        </a>
+      </div>
+    </div>
+    <div class="card-body" style="padding: 1.25rem;">
+      <div class="today-slots-grid">
+        @for (slot of timetableService.todaySlots(); track slot.id) {
+          <div
+            class="today-slot-pill"
+            [ngClass]="'theme-' + slot.colorTag"
+            [class.slot-live-card]="slot.status === 'ongoing'"
+            routerLink="/teacher/timetable"
+          >
+            <div class="slot-pill-time">
+              <span class="pill-hour">{{ slot.startTime }}</span>
+              <span class="pill-tag">{{ slot.type }}</span>
+            </div>
+            <div class="slot-pill-info">
+              <div class="slot-pill-title-row">
+                <span class="pill-code">{{ slot.courseCode }}</span>
+                @if (slot.status === 'ongoing') {
+                  <span class="badge badge-live">
+                    <span class="live-dot-pulse"></span>
+                    ONGOING
+                  </span>
+                }
+                @if (slot.status === 'rescheduled') {
+                  <span class="badge badge-amber">RESCHEDULED</span>
+                }
+              </div>
+              <div class="pill-name">{{ slot.courseName }}</div>
+              <div class="pill-meta">
+                <span>Room: <strong>{{ slot.room }}</strong></span>
+                <span>• {{ slot.section }}</span>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <div style="padding: 1rem; color: var(--slate-400); text-align: center; width: 100%;">
+            No classes scheduled for today. Check the <a routerLink="/teacher/timetable" style="color: var(--primary-600); font-weight: 700;">Timetable Manager</a> for the weekly schedule.
+          </div>
+        }
+      </div>
     </div>
   </div>
 

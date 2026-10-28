@@ -1,0 +1,538 @@
+<div class="timetable-page">
+  <!-- Top Header with Controls -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-badge">
+        <app-icon name="calendar" [size]="16" customClass="text-indigo"></app-icon>
+        <span>WEB TECHNOLOGIES PRODUCT • TIMETABLE MANAGER</span>
+      </div>
+      <h1 class="page-title">Smart Class Timetable Manager</h1>
+      <p class="page-subtitle">
+        Shared schedule system with quick update control, conflict detection, and live notification alerts.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <!-- Notification Center Pill -->
+      <button
+        type="button"
+        class="btn btn-secondary notif-toggle-btn"
+        (click)="showNotifsPanel.set(!showNotifsPanel())"
+        title="View Schedule Notifications"
+      >
+        <app-icon name="bell" [size]="17"></app-icon>
+        <span>Schedule Alerts</span>
+        <span
+          class="badge badge-rose font-bold"
+          *ngIf="timetableService.notifications().length > 0"
+        >
+          {{ timetableService.notifications().length }}
+        </span>
+      </button>
+
+      <!-- View Switcher -->
+      <div class="view-switcher">
+        <button
+          type="button"
+          class="switch-btn"
+          [class.active]="viewMode() === 'grid'"
+          (click)="viewMode.set('grid')"
+        >
+          <app-icon name="layout-dashboard" [size]="15"></app-icon>
+          Weekly Matrix
+        </button>
+        <button
+          type="button"
+          class="switch-btn"
+          [class.active]="viewMode() === 'day'"
+          (click)="viewMode.set('day')"
+        >
+          <app-icon name="clock" [size]="15"></app-icon>
+          Day Timeline
+        </button>
+      </div>
+
+      <!-- Add Slot (Faculty / Admin) -->
+      @if (isFacultyOrAdmin) {
+        <button (click)="openAddModal()" class="btn btn-primary shadow-md">
+          <app-icon name="plus" [size]="16"></app-icon>
+          <span>Add Schedule Slot</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Real-Time Conflict Check Status Bar -->
+  <div class="conflict-check-banner" [class.banner-has-conflict]="timetableService.conflicts().length > 0">
+    <div class="conflict-status-left">
+      <div class="status-icon-bubble" [class.icon-bubble-danger]="timetableService.conflicts().length > 0">
+        <app-icon
+          [name]="timetableService.conflicts().length > 0 ? 'alert-triangle' : 'check-circle-2'"
+          [size]="18"
+        ></app-icon>
+      </div>
+      <div>
+        <h4 class="conflict-title">
+          {{ timetableService.conflicts().length === 0 ? 'Conflict Check Clean (0 Collisions)' : 'Schedule Conflict Detected!' }}
+        </h4>
+        <p class="conflict-desc">
+          {{ timetableService.conflicts().length === 0
+            ? 'All classroom allocations, faculty time slots, and section timetables are verified with 0 overlaps.'
+            : timetableService.conflicts()[0].conflicts[0].message }}
+        </p>
+      </div>
+    </div>
+
+    <div class="conflict-stats">
+      <span class="badge" [ngClass]="timetableService.conflicts().length === 0 ? 'badge-active' : 'badge-live'">
+        {{ timetableService.conflicts().length === 0 ? 'STATUS: OPTIMAL' : 'ACTION REQUIRED' }}
+      </span>
+      <span class="slots-count-tag">
+        <strong>{{ timetableService.slots().length }}</strong> Total Slots Active
+      </span>
+    </div>
+  </div>
+
+  <!-- Real-Time Notifications Feed (Expandable / Drawer) -->
+  @if (showNotifsPanel()) {
+    <div class="notifications-drawer">
+      <div class="drawer-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <app-icon name="bell" [size]="18" customClass="text-indigo"></app-icon>
+          <h3 class="drawer-title">Recent Timetable Updates & Broadcasts</h3>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button (click)="timetableService.markNotificationsRead()" class="btn btn-ghost btn-sm">
+            Mark all read
+          </button>
+          <button (click)="showNotifsPanel.set(false)" class="btn btn-icon btn-sm">
+            <app-icon name="x" [size]="16"></app-icon>
+          </button>
+        </div>
+      </div>
+      <div class="notif-cards-list">
+        @for (n of timetableService.notifications(); track n.id) {
+          <div class="schedule-notif-item" [class.unread]="!n.read">
+            <div class="notif-pill-type" [ngClass]="'type-' + n.type">
+              {{ n.type | uppercase }}
+            </div>
+            <div class="notif-content">
+              <div class="notif-head">
+                <span class="notif-title">{{ n.title }}</span>
+                <span class="notif-time">{{ n.timestamp }}</span>
+              </div>
+              <p class="notif-msg">{{ n.message }}</p>
+            </div>
+          </div>
+        } @empty {
+          <p style="padding: 1rem; color: var(--slate-400); text-align: center;">No schedule changes logged yet.</p>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Section & Day Quick Selector Filter Bar -->
+  <div class="filters-bar">
+    <div class="days-pills">
+      @for (day of days; track day) {
+        <button
+          type="button"
+          class="day-filter-btn"
+          [class.active]="timetableService.selectedDay() === day"
+          (click)="selectDay(day)"
+        >
+          {{ day }}
+        </button>
+      }
+    </div>
+
+    <div class="section-selector">
+      <label class="filter-label">Section:</label>
+      <div class="section-pills">
+        @for (sec of sections; track sec) {
+          <button
+            type="button"
+            class="sec-filter-btn"
+            [class.active]="timetableService.selectedSection() === sec"
+            (click)="selectSection(sec)"
+          >
+            {{ sec }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 1: WEEKLY MATRIX GRID -->
+  @if (viewMode() === 'grid') {
+    <div class="card matrix-card">
+      <div class="matrix-table-wrapper">
+        <table class="timetable-matrix-table">
+          <thead>
+            <tr>
+              <th class="time-col-header">
+                <app-icon name="clock" [size]="14"></app-icon>
+                <span>Time Slot</span>
+              </th>
+              @for (day of days; track day) {
+                <th [class.today-header]="day === timetableService.selectedDay()">
+                  {{ day }}
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (time of timeSlots; track time.label) {
+              <tr>
+                <td class="time-label-cell">
+                  <div class="time-bubble">
+                    <span class="time-start">{{ time.start }}</span>
+                    <span class="time-end">{{ time.end }}</span>
+                  </div>
+                </td>
+                @for (day of days; track day) {
+                  <td class="slot-cell">
+                    @let slot = getSlotForCell(day, time.label);
+                    @if (slot) {
+                      <div
+                        class="slot-card-3d"
+                        [ngClass]="'theme-' + slot.colorTag"
+                        [class.slot-ongoing]="slot.status === 'ongoing'"
+                        [class.slot-rescheduled]="slot.status === 'rescheduled'"
+                        [class.slot-cancelled]="slot.status === 'cancelled'"
+                        (click)="isFacultyOrAdmin ? openEditModal(slot, $event) : null"
+                      >
+                        <div class="slot-top-row">
+                          <span class="slot-course-code">{{ slot.courseCode }}</span>
+                          <span class="slot-type-badge">{{ slot.type }}</span>
+                        </div>
+                        <div class="slot-course-name">{{ slot.courseName }}</div>
+                        <div class="slot-meta-row">
+                          <span class="slot-room-tag">
+                            <app-icon name="home" [size]="12"></app-icon>
+                            {{ slot.room }}
+                          </span>
+                          <span class="slot-faculty-tag">{{ slot.facultyName }}</span>
+                        </div>
+                        @if (slot.status === 'rescheduled') {
+                          <div class="slot-rescheduled-badge">
+                            <app-icon name="alert-triangle" [size]="11"></app-icon>
+                            <span>Rescheduled</span>
+                          </div>
+                        }
+                        @if (slot.status === 'ongoing') {
+                          <div class="slot-ongoing-badge">
+                            <span class="live-dot-pulse"></span>
+                            <span>IN SESSION NOW</span>
+                          </div>
+                        }
+                        @if (isFacultyOrAdmin) {
+                          <div class="slot-actions-hover">
+                            <button
+                              type="button"
+                              class="slot-edit-btn"
+                              (click)="openEditModal(slot, $event)"
+                              title="Edit / Reschedule Slot"
+                            >
+                              <app-icon name="edit-3" [size]="12"></app-icon>
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    } @else {
+                      <div
+                        class="empty-slot"
+                        (click)="isFacultyOrAdmin ? openAddModal(day, time.start, time.end) : null"
+                      >
+                        @if (isFacultyOrAdmin) {
+                          <span class="add-slot-hint">
+                            <app-icon name="plus" [size]="14"></app-icon>
+                            <span>Assign</span>
+                          </span>
+                        } @else {
+                          <span class="free-period-label">Free Period</span>
+                        }
+                      </div>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- VIEW 2: DAY TIMELINE VIEW -->
+  @if (viewMode() === 'day') {
+    <div class="day-timeline-wrapper">
+      <div class="day-summary-banner">
+        <div>
+          <h3 class="day-summary-title">Schedule for {{ timetableService.selectedDay() }} ({{ timetableService.selectedSection() }})</h3>
+          <p class="day-summary-sub">Chronological list of all lectures, labs, and interactive class slots.</p>
+        </div>
+        @if (isFacultyOrAdmin) {
+          <button (click)="openAddModal(timetableService.selectedDay())" class="btn btn-secondary btn-sm">
+            <app-icon name="plus" [size]="15"></app-icon>
+            Add Slot on {{ timetableService.selectedDay() }}
+          </button>
+        }
+      </div>
+
+      <div class="timeline-slots-grid">
+        @for (slot of timetableService.filteredSlots(); track slot.id) {
+          <div
+            class="timeline-slot-card"
+            [ngClass]="'theme-' + slot.colorTag"
+            [class.card-ongoing]="slot.status === 'ongoing'"
+            [class.card-rescheduled]="slot.status === 'rescheduled'"
+          >
+            <div class="timeline-time-col">
+              <span class="timeline-hour">{{ slot.startTime }}</span>
+              <span class="timeline-to">to</span>
+              <span class="timeline-hour">{{ slot.endTime }}</span>
+              <span class="timeline-type-pill">{{ slot.type }}</span>
+            </div>
+
+            <div class="timeline-info-col">
+              <div class="slot-status-pill-row">
+                <span class="code-badge">{{ slot.courseCode }}</span>
+                <span class="sec-badge">{{ slot.section }} • {{ slot.semester }}</span>
+                @if (slot.status === 'ongoing') {
+                  <span class="badge badge-live">
+                    <span class="live-dot-pulse"></span>
+                    ONGOING NOW
+                  </span>
+                }
+                @if (slot.status === 'rescheduled') {
+                  <span class="badge badge-amber">Rescheduled</span>
+                }
+              </div>
+
+              <h3 class="timeline-course-title">{{ slot.courseName }}</h3>
+              <p class="timeline-faculty">Instructor: <strong>{{ slot.facultyName }}</strong></p>
+
+              @if (slot.updateNote) {
+                <div class="timeline-note-callout">
+                  <app-icon name="info" [size]="14"></app-icon>
+                  <span>{{ slot.updateNote }}</span>
+                </div>
+              }
+
+              <div class="timeline-footer-row">
+                <div class="room-pill">
+                  <app-icon name="home" [size]="14"></app-icon>
+                  <span>Room: <strong>{{ slot.room }}</strong></span>
+                </div>
+
+                @if (isFacultyOrAdmin) {
+                  <div class="admin-edit-btns">
+                    <button (click)="openEditModal(slot)" class="btn btn-secondary btn-sm">
+                      <app-icon name="edit-3" [size]="14"></app-icon>
+                      Quick Edit / Reschedule
+                    </button>
+                    <button (click)="deleteSlot(slot.id)" class="btn btn-danger btn-sm" title="Delete Slot">
+                      <app-icon name="trash-2" [size]="14"></app-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <div class="card empty-timeline-card">
+            <app-icon name="calendar" [size]="40" customClass="text-slate-400"></app-icon>
+            <h4 style="margin-top: 0.75rem; font-weight: 700;">No classes scheduled for {{ timetableService.selectedDay() }}</h4>
+            <p style="color: var(--slate-400); font-size: 0.875rem; margin-top: 0.25rem;">
+              Enjoy your study break or use the button above to add a lecture session.
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ADMIN / FACULTY EDIT MODAL (WITH CONFLICT CHECKING & UPDATE CONTROL) -->
+@if (isModalOpen()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-content timetable-modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">{{ isEditMode() ? 'Edit & Reschedule Class Slot' : 'Add New Timetable Slot' }}</h3>
+          <p class="modal-subtitle">Quick update control with automatic room & faculty conflict detection</p>
+        </div>
+        <button type="button" class="btn btn-icon btn-sm" (click)="closeModal()">
+          <app-icon name="x" [size]="18"></app-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Live Conflict Warning inside modal -->
+        @if (modalConflicts().length > 0) {
+          <div class="modal-conflict-alert">
+            <div class="conflict-alert-icon">
+              <app-icon name="alert-triangle" [size]="20"></app-icon>
+            </div>
+            <div>
+              <h5 class="conflict-alert-heading">Collision Conflict Warning!</h5>
+              <p class="conflict-alert-text">{{ modalConflicts()[0].message }}</p>
+              <label class="force-override-check">
+                <input type="checkbox" [(ngModel)]="forceOverride" />
+                <span>Force override (Manager Authorization)</span>
+              </label>
+            </div>
+          </div>
+        }
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label form-label-required">Course Code</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.courseCode"
+              placeholder="e.g. WT04, DS02"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">Course Name</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.courseName"
+              placeholder="e.g. Web Technologies"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label form-label-required">Day of Week</label>
+            <select class="form-control form-select" [(ngModel)]="formModel.day" (ngModelChange)="onFormChange()">
+              @for (d of days; track d) {
+                <option [value]="d">{{ d }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">Classroom / Room</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.room"
+              placeholder="e.g. Lecture Hall 1, Room 302, Web Lab 2"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label form-label-required">Start Time</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.startTime"
+              placeholder="09:00 AM"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">End Time</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.endTime"
+              placeholder="10:00 AM"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+        </div>
+
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Instructor Name</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formModel.facultyName"
+              placeholder="e.g. Dr. Priya Sharma"
+              (ngModelChange)="onFormChange()"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Section</label>
+            <select class="form-control form-select" [(ngModel)]="formModel.section" (ngModelChange)="onFormChange()">
+              <option value="CSE-A">CSE-A</option>
+              <option value="CSE-B">CSE-B</option>
+              <option value="CSE-C">CSE-C</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <select class="form-control form-select" [(ngModel)]="formModel.type">
+              <option value="Lecture">Lecture</option>
+              <option value="Lab">Practical Lab</option>
+              <option value="Tutorial">Tutorial</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Schedule Status</label>
+            <select class="form-control form-select" [(ngModel)]="formModel.status">
+              <option value="scheduled">Scheduled (Normal)</option>
+              <option value="ongoing">In Session (Ongoing)</option>
+              <option value="rescheduled">Rescheduled</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Color Accent</label>
+            <select class="form-control form-select" [(ngModel)]="formModel.colorTag">
+              <option value="indigo">Indigo (Web Tech)</option>
+              <option value="emerald">Emerald (Databases)</option>
+              <option value="purple">Purple (Lab Sessions)</option>
+              <option value="amber">Amber (Operating Systems)</option>
+              <option value="rose">Rose (Machine Learning)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Update Reason / Notice (Broadcasts to Students)</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="formModel.updateNote"
+            placeholder="e.g. Moved to Web Lab 2 for hands-on Angular coding exercise"
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="modalConflicts().length > 0 && !forceOverride()"
+          (click)="saveSlot()"
+        >
+          <app-icon name="check" [size]="16"></app-icon>
+          <span>{{ isEditMode() ? 'Save Schedule Update' : 'Confirm & Schedule' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}

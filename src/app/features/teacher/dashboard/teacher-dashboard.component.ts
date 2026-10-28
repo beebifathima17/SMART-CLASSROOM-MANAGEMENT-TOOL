@@ -8,6 +8,7 @@ import { PollService } from '../../../core/services/poll.service';
 import { QuizService } from '../../../core/services/quiz.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TimetableService } from '../../../core/services/timetable.service';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
 import { ChartComponent } from '../../../shared/components/chart/chart.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
@@ -32,6 +33,7 @@ export class TeacherDashboardComponent implements OnInit {
   protected pollService = inject(PollService);
   protected quizService = inject(QuizService);
   protected analyticsService = inject(AnalyticsService);
+  protected timetableService = inject(TimetableService);
   private toastService = inject(ToastService);
   private router = inject(Router);
   protected Math = Math;

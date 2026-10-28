@@ -343,6 +343,148 @@
   color: var(--slate-400);
 }
 
+/* ==========================================================================
+   Timetable Widget Card & Grid
+   ========================================================================== */
+.timetable-widget-card {
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.timetable-icon-pod {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  color: var(--primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);
+}
+
+[data-theme="dark"] .timetable-icon-pod {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+
+.today-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.today-slot-pill {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
+}
+
+.today-slot-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12);
+  border-color: var(--primary-300);
+}
+
+.today-slot-pill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.theme-indigo::before { background: #6366f1; }
+.theme-emerald::before { background: #10b981; }
+.theme-purple::before { background: #a855f7; }
+.theme-amber::before { background: #f59e0b; }
+.theme-rose::before { background: #f43f5e; }
+
+[data-theme="dark"] .today-slot-pill {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.slot-pill-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-right: 0.75rem;
+  border-right: 1px solid var(--border-color);
+  min-width: 75px;
+}
+
+.pill-hour {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+[data-theme="dark"] .pill-hour {
+  color: #ffffff;
+}
+
+.pill-tag {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--slate-400);
+  text-transform: uppercase;
+}
+
+.slot-pill-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.slot-pill-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pill-code {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--primary-600);
+}
+
+.pill-name {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0.1rem;
+}
+
+[data-theme="dark"] .pill-name {
+  color: #ffffff;
+}
+
+.pill-meta {
+  font-size: 0.6875rem;
+  color: var(--slate-500);
+  margin-top: 0.2rem;
+}
+
+.slot-live-card {
+  border-color: var(--accent-rose) !important;
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.15) !important;
+}
+
 @media (max-width: 1024px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }

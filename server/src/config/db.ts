@@ -213,6 +213,241 @@ const getInitialSeed = (): DatabaseSchema => {
         badgeType: 'success',
         timestamp: '10:02 AM'
       }
+    ],
+    timetableSlots: [
+      {
+        id: 'slot-mon-1',
+        courseCode: 'WT04',
+        courseName: 'Web Technologies',
+        facultyId: 'usr-teacher-01',
+        facultyName: 'Dr. Priya Sharma',
+        day: 'Monday',
+        timeSlot: '09:00 AM - 10:00 AM',
+        startTime: '09:00 AM',
+        endTime: '10:00 AM',
+        room: 'Lecture Hall 1',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Lecture',
+        colorTag: 'indigo',
+        status: 'scheduled'
+      },
+      {
+        id: 'slot-mon-2',
+        courseCode: 'DS02',
+        courseName: 'Database Management Systems',
+        facultyId: 'usr-fac-02',
+        facultyName: 'Prof. Rajesh Kumar',
+        day: 'Monday',
+        timeSlot: '10:00 AM - 11:00 AM',
+        startTime: '10:00 AM',
+        endTime: '11:00 AM',
+        room: 'Room 302',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Lecture',
+        colorTag: 'emerald',
+        status: 'scheduled'
+      },
+      {
+        id: 'slot-mon-3',
+        courseCode: 'WT04-LAB',
+        courseName: 'Web Technologies Practical Lab',
+        facultyId: 'usr-teacher-01',
+        facultyName: 'Dr. Priya Sharma',
+        day: 'Monday',
+        timeSlot: '11:15 AM - 01:15 PM',
+        startTime: '11:15 AM',
+        endTime: '01:15 PM',
+        room: 'Web Lab 2',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Lab',
+        colorTag: 'purple',
+        status: 'scheduled'
+      },
+      {
+        id: 'slot-mon-4',
+        courseCode: 'OS03',
+        courseName: 'Operating Systems',
+        facultyId: 'usr-fac-03',
+        facultyName: 'Dr. Anita Desai',
+        day: 'Monday',
+        timeSlot: '02:00 PM - 03:00 PM',
+        startTime: '02:00 PM',
+        endTime: '03:00 PM',
+        room: 'Lecture Hall 1',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Lecture',
+        colorTag: 'amber',
+        status: 'scheduled'
+      },
+      {
+        id: 'slot-tue-1',
+        courseCode: 'ML05',
+        courseName: 'Machine Learning Fundamentals',
+        facultyId: 'usr-fac-04',
+        facultyName: 'Prof. Vikram Mehta',
+        day: 'Tuesday',
+        timeSlot: '09:00 AM - 10:00 AM',
+        startTime: '09:00 AM',
+        endTime: '10:00 AM',
+        room: 'Room 401',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Lecture',
+        colorTag: 'rose',
+        status: 'scheduled'
+      },
+      {
+        id: 'slot-tue-2',
+        courseCode: 'WT04',
+        courseName: 'Web Technologies (SPA & Angular)',
+        facultyId: 'usr-teacher-01',
+        facultyName: 'Dr. Priya Sharma',
+        day: 'Tuesday',
+        timeSlot: '10:00 AM - 11:00 AM',
+        startTime: '10:00 AM',
+        endTime: '11:00 AM',
+        room: 'Lecture Hall 1',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Lecture',
+        colorTag: 'indigo',
+        status: 'ongoing'
+      },
+      {
+        id: 'slot-tue-3',
+        courseCode: 'CN01',
+        courseName: 'Computer Networks',
+        facultyId: 'usr-fac-05',
+        facultyName: 'Prof. S. Sen',
+        day: 'Tuesday',
+        timeSlot: '11:15 AM - 12:15 PM',
+        startTime: '11:15 AM',
+        endTime: '12:15 PM',
+        room: 'Room 302',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Lecture',
+        colorTag: 'emerald',
+        status: 'rescheduled',
+        updateNote: 'Shifted from Room 201 due to projector calibration'
+      },
+      {
+        id: 'slot-wed-1',
+        courseCode: 'DS02',
+        courseName: 'Database Management Systems',
+        facultyId: 'usr-fac-02',
+        facultyName: 'Prof. Rajesh Kumar',
+        day: 'Wednesday',
+        timeSlot: '09:00 AM - 10:00 AM',
+        startTime: '09:00 AM',
+        endTime: '10:00 AM',
+        room: 'Room 302',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Lecture',
+        colorTag: 'emerald',
+        status: 'scheduled'
+      },
+      {
+        id: 'slot-wed-2',
+        courseCode: 'WT04',
+        courseName: 'Web Technologies (REST & WebSockets)',
+        facultyId: 'usr-teacher-01',
+        facultyName: 'Dr. Priya Sharma',
+        day: 'Wednesday',
+        timeSlot: '10:00 AM - 11:00 AM',
+        startTime: '10:00 AM',
+        endTime: '11:00 AM',
+        room: 'Lecture Hall 1',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Lecture',
+        colorTag: 'indigo',
+        status: 'scheduled'
+      },
+      {
+        id: 'slot-thu-1',
+        courseCode: 'WT04',
+        courseName: 'Web Technologies (Tutorial & Q/A)',
+        facultyId: 'usr-teacher-01',
+        facultyName: 'Dr. Priya Sharma',
+        day: 'Thursday',
+        timeSlot: '10:00 AM - 11:00 AM',
+        startTime: '10:00 AM',
+        endTime: '11:00 AM',
+        room: 'Room 105',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Tutorial',
+        colorTag: 'indigo',
+        status: 'scheduled'
+      },
+      {
+        id: 'slot-fri-1',
+        courseCode: 'WT04',
+        courseName: 'Web Technologies (Full Stack Architecture)',
+        facultyId: 'usr-teacher-01',
+        facultyName: 'Dr. Priya Sharma',
+        day: 'Friday',
+        timeSlot: '09:00 AM - 10:00 AM',
+        startTime: '09:00 AM',
+        endTime: '10:00 AM',
+        room: 'Lecture Hall 1',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Lecture',
+        colorTag: 'indigo',
+        status: 'scheduled'
+      },
+      {
+        id: 'slot-fri-2',
+        courseCode: 'OS03',
+        courseName: 'Operating Systems (Processes & Threads)',
+        facultyId: 'usr-fac-03',
+        facultyName: 'Dr. Anita Desai',
+        day: 'Friday',
+        timeSlot: '10:00 AM - 11:00 AM',
+        startTime: '10:00 AM',
+        endTime: '11:00 AM',
+        room: 'Lecture Hall 1',
+        section: 'CSE-A',
+        semester: 'Semester 5',
+        type: 'Lecture',
+        colorTag: 'amber',
+        status: 'scheduled'
+      }
+    ],
+    scheduleNotifications: [
+      {
+        id: 'notif-sch-1',
+        title: 'Timetable Rescheduled',
+        message: 'Computer Networks (CN01) on Tuesday 11:15 AM moved to Room 302.',
+        type: 'reschedule',
+        timestamp: '10 mins ago',
+        read: false,
+        slotId: 'slot-tue-3'
+      },
+      {
+        id: 'notif-sch-2',
+        title: 'Conflict Verification Passed',
+        message: 'Shared timetable scan completed: 0 room or faculty conflicts detected across CSE-A.',
+        type: 'conflict',
+        timestamp: '1 hour ago',
+        read: true
+      },
+      {
+        id: 'notif-sch-3',
+        title: 'Web Technologies Lab Alert',
+        message: 'Monday 11:15 AM Lab confirmed in Web Lab 2 with Dr. Priya Sharma.',
+        type: 'update',
+        timestamp: 'Today, 08:30 AM',
+        read: true,
+        slotId: 'slot-mon-3'
+      }
     ]
   };
 };
@@ -233,7 +468,15 @@ class JsonDatabase {
 
     try {
       const content = fs.readFileSync(DB_FILE, 'utf-8');
-      return JSON.parse(content);
+      const loaded = JSON.parse(content);
+      // Ensure timetable collections exist
+      if (!loaded.timetableSlots || !loaded.scheduleNotifications) {
+        const seed = getInitialSeed();
+        loaded.timetableSlots = loaded.timetableSlots || seed.timetableSlots;
+        loaded.scheduleNotifications = loaded.scheduleNotifications || seed.scheduleNotifications;
+        this.save(loaded);
+      }
+      return loaded;
     } catch (err) {
       console.error('[DB] Error reading database file, restoring defaults:', err);
       const initialData = getInitialSeed();

@@ -234,6 +234,21 @@ import { CommonModule } from '@angular/common';
         <path d="M12 8h.01"/>
       </g>
 
+      <!-- Calendar / Schedule / Timetable -->
+      <g *ngSwitchCase="'calendar'">
+        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+        <line x1="16" x2="16" y1="2" y2="6"/>
+        <line x1="8" x2="8" y1="2" y2="6"/>
+        <line x1="3" x2="21" y1="10" y2="10"/>
+      </g>
+
+      <!-- Alert Triangle / Conflict Warning -->
+      <g *ngSwitchCase="'alert-triangle'">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+        <line x1="12" x2="12" y1="9" y2="13"/>
+        <line x1="12" x2="12.01" y1="17" y2="17"/>
+      </g>
+
       <!-- Default Fallback Circle -->
       <circle *ngSwitchDefault cx="12" cy="12" r="10"/>
     </svg>
